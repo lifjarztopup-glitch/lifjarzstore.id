@@ -717,8 +717,12 @@ function getGameEmoji(g) {
 async function selectGame(gameName) {
     selectedGameName = gameName;
     // Update active card
-    document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
-    event.currentTarget.classList.add('active');
+    document.querySelectorAll('.game-card').forEach(c => {
+        c.classList.remove('active');
+        if (c.querySelector('.game-card-name')?.textContent === gameName) {
+            c.classList.add('active');
+        }
+    });
 
     document.getElementById('game-item-panel').style.display = '';
     document.getElementById('game-item-title').textContent = getGameEmoji(gameName) + ' ' + gameName;
