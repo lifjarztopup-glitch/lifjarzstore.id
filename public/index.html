@@ -123,8 +123,15 @@ nav{background:#fff;padding:0 24px;height:60px;display:flex;align-items:center;j
 .status-pending{background:#fef3c7;color:#d97706;border:1px solid #fcd34d;}
 .status-success{background:#d1fae5;color:#059669;border:1px solid #6ee7b7;}
 .status-failed{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;}
+/* PEMBAYARAN TERJAMIN */
+.payment-terjamin{background:#1a1f36;padding:24px 22px 20px;}
+.payment-terjamin-title{text-align:center;font-family:'Poppins',sans-serif;font-size:0.82rem;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#4ade80;margin-bottom:16px;}
+.payment-logos-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-bottom:8px;}
+.payment-logo-item{background:#fff;border-radius:8px;padding:5px 10px;display:flex;align-items:center;justify-content:center;height:38px;box-shadow:0 2px 6px rgba(0,0,0,0.3);transition:transform 0.2s;}
+.payment-logo-item:hover{transform:translateY(-2px);}
+.payment-logo-item img{height:22px;width:auto;object-fit:contain;display:block;}
 /* FOOTER */
-footer{background:#12172e;padding:32px 22px 18px;margin-top:6px;}
+footer{background:#12172e;padding:32px 22px 18px;margin-top:0;}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:26px;margin-bottom:22px;}
 .footer-logo{font-family:'Poppins',sans-serif;font-weight:900;font-size:0.96rem;color:#fff;margin-bottom:7px;}
 .footer-brand p{font-size:0.72rem;color:rgba(255,255,255,0.48);line-height:1.75;max-width:200px;margin-bottom:10px;}
@@ -337,6 +344,42 @@ select option{background:#fff;color:#222;}
         <div class="trx-result" id="trx-result"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- PEMBAYARAN TERJAMIN -->
+<div class="payment-terjamin">
+  <div class="payment-terjamin-title">PEMBAYARAN TERJAMIN</div>
+  <div class="payment-logos-row">
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/QRIS_logo.svg/200px-QRIS_logo.svg.png" alt="QRIS"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Bank_Central_Asia.svg/200px-Bank_Central_Asia.svg.png" alt="BCA"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/200px-Logo_dana_blue.svg.png" alt="DANA"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/ShopeePay_Logo.svg/200px-ShopeePay_Logo.svg.png" alt="ShopeePay"></div>
+    <div class="payment-logo-item" style="padding:4px 14px;"><img src="https://linkaja.id/images/link-aja-logo.png" alt="LinkAja" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/LinkAja_logo.svg/200px-LinkAja_logo.svg.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/200px-Logo_ovo_purple.svg.png" alt="OVO"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Muamalat_logo.svg/200px-Bank_Muamalat_logo.svg.png" alt="Muamalat"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/ATM_Bersama_logo.svg/200px-ATM_Bersama_logo.svg.png" alt="ATM Bersama" onerror="this.src='https://atmbersama.com/images/logo.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Bank_Sinarmas_logo.svg/200px-Bank_Sinarmas_logo.svg.png" alt="Sinarmas" onerror="this.src='https://www.banksinarmas.com/images/logo-bank-sinarmas.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Bank_Syariah_Indonesia.svg/200px-Bank_Syariah_Indonesia.svg.png" alt="BSI" onerror="this.src='https://bsi.co.id/images/logo-bsi.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/BNI_logo.svg/200px-BNI_logo.svg.png" alt="BNI"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/BANK_BRI_logo.svg/200px-BANK_BRI_logo.svg.png" alt="BRI"></div>
+  </div>
+  <div class="payment-logos-row">
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/CIMB_Niaga_logo.svg/200px-CIMB_Niaga_logo.svg.png" alt="CIMB Niaga" onerror="this.src='https://www.cimbniaga.co.id/content/dam/cimbniaga/logo/cimb-niaga-logo.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Bank_Mandiri_logo_2016.svg/200px-Bank_Mandiri_logo_2016.svg.png" alt="Mandiri"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Bank_Danamon_logo.svg/200px-Bank_Danamon_logo.svg.png" alt="Danamon"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Maybank_logo.svg/200px-Maybank_logo.svg.png" alt="Maybank"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Maybank_logo.svg/200px-Maybank_logo.svg.png" alt="Maybank VA"><span style="font-size:0.55rem;font-weight:800;color:#621B1B;margin-left:3px">VA</span></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/OCBC_NISP_logo.svg/200px-OCBC_NISP_logo.svg.png" alt="OCBC NISP" onerror="this.src='https://www.ocbcnisp.com/images/logo-ocbc-nisp.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/PermataBank_logo.svg/200px-PermataBank_logo.svg.png" alt="PermataBank" onerror="this.src='https://www.permatabank.com/images/logo-permata.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Bank_Neo_Commerce_logo.svg/200px-Bank_Neo_Commerce_logo.svg.png" alt="Bank Neo" onerror="this.src='https://bankneo.co.id/images/logo.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Alfamart_logo.svg/200px-Alfamart_logo.svg.png" alt="Alfamart"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Alfamidi_logo.svg/200px-Alfamidi_logo.svg.png" alt="Alfamidi" onerror="this.src='https://alfamidi.co.id/images/logo.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Indomaret_logo.svg/200px-Indomaret_logo.svg.png" alt="Indomaret" onerror="this.src='https://indomaret.co.id/images/logo-indomaret.png'"></div>
+  </div>
+  <div class="payment-logos-row">
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Axis_telekom_logo.svg/200px-Axis_telekom_logo.svg.png" alt="AXIS" onerror="this.src='https://www.axisnet.id/images/logo-axis.png'"></div>
+    <div class="payment-logo-item"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Logo_3_Tri_Indonesia.svg/200px-Logo_3_Tri_Indonesia.svg.png" alt="Tri" onerror="this.src='https://tri.co.id/images/logo.png'"></div>
   </div>
 </div>
 
