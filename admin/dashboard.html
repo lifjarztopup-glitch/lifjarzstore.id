@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFJARZ Admin</title>
+    <style>
+        :root {
+            --bg: #0a0f1e;
+            --sidebar-bg: #0d1426;
+            --card-bg: #111827;
+            --card-border: rgba(255,255,255,0.06);
+            --accent: #38bdf8;
+            --accent2: #818cf8;
+            --text: #e2e8f0;
+            --text-muted: #475569;
+            --text-sub: #64748b;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --radius: 14px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .layout { display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px; min-width: 220px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--card-border);
+            padding: 24px 16px;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .sidebar h2 {
+            font-size: 13px; font-weight: 700; letter-spacing: 2px;
+            color: var(--accent); text-transform: uppercase;
+            padding: 0 8px; margin-bottom: 20px;
+        }
+        .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
+        .sidebar nav a {
+            display: block; padding: 10px 12px; border-radius: 10px;
+            font-size: 13px; color: var(--text-muted); cursor: pointer;
+            transition: all .2s; text-decoration: none;
+        }
+        .sidebar nav a:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+        .sidebar nav a.active { background: rgba(56,189,248,0.1); color: var(--accent); }
+        .sidebar nav a.logout { color: var(--danger); margin-top: 12px; }
+        .sidebar nav a.logout:hover { background: rgba(248,113,113,0.1); }
+
+        /* MAIN */
+        .main { flex: 1; padding: 28px 32px; overflow-y: auto; }
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 28px;
+        }
+        .topbar h1 { font-size: 20px; font-weight: 700; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+
+        /* STATS */
+        .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: var(--radius); padding: 18px 20px;
+        }
+        .stat-card h3 { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-sub); margin-bottom: 8px; }
+        .stat-card p { font-size: 24px; font-weight: 700; }
+        .stat-card.pending p { color: var(--warning); }
+        .stat-card.omzet p { color: var(--success); font-size: 18px; }
+
+        /* SECTION BOX */
+        .section-box {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            border-radius: var(--radius); padding: 22px 24px; margin-bottom: 20px;
+        }
+        .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+        .sec-head h2 { font-size: 15px; font-weight: 600; }
+        .sec-note { font-size: 11px; color: var(--text-muted); }
+
+        /* BADGES & LIVE */
+        .live-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; color:var(--success); background:rgba(74,222,128,.08); border:1px solid rgba(74,222,128,.2); padding:4px 10px; border-radius:20px; }
+        .live-dot { width:6px; height:6px; background:var(--success); border-radius:50%; animation:lp 1.5s infinite; }
+        @keyframes lp { 0%,100%{opacity:1} 50%{opacity:.3} }
+        .badge { display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+        .b-pend { background:rgba(251,191,36,.12); color:var(--warning); border:1px solid rgba(251,191,36,.25); }
+        .b-ok   { background:rgba(74,222,128,.10); color:var(--success); border:1px solid rgba(74,222,128,.22); }
+        .b-no   { background:rgba(248,113,113,.10); color:var(--danger); border:1px solid rgba(248,113,113,.22); }
+
+        /* BUTTONS */
+        button { cursor: pointer; font-family: inherit; border: none; }
+        .btn { padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; transition: .2s; }
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-primary:hover { opacity: .85; }
+        .btn-accent2 { background: rgba(129,140,248,.15); color: var(--accent2); border: 1px solid rgba(129,140,248,.3); }
+        .btn-accent2:hover { background: rgba(129,140,248,.25); }
+        .btn-sm { padding: 4px 10px; border-radius: 7px; font-size: 11px; font-weight: 600; transition: .15s; }
+        .btn-del { background: rgba(248,113,113,.08); color:var(--danger); } .btn-del:hover { background:rgba(248,113,113,.2); }
+        .btn-edit { background: rgba(56,189,248,.08); color:var(--accent); } .btn-edit:hover { background:rgba(56,189,248,.2); }
+        .btn-ok { background:rgba(74,222,128,.1); color:var(--success); } .btn-ok:hover { background:rgba(74,222,128,.22); }
+
+        /* INPUT */
+        input, select, textarea {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 9px; color: var(--text); font-family: inherit; font-size: 13px;
+            padding: 9px 12px; width: 100%; transition: border .2s; outline: none;
+        }
+        input:focus, select:focus { border-color: rgba(56,189,248,0.5); }
+        input::placeholder { color: var(--text-muted); }
+        select option { background: #1e293b; }
+        .fl { display: block; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; }
+
+        /* TABLE */
+        .tbl { width:100%; border-collapse:collapse; }
+        .tbl th { text-align:left; padding:8px 12px; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--text-sub); border-bottom:1px solid var(--card-border); }
+        .tbl td { padding:10px 12px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:middle; }
+        .tbl tr:last-child td { border-bottom:none; }
+        .tbl tr:hover td { background:rgba(255,255,255,0.02); }
+        .prod-img { width:36px; height:36px; border-radius:8px; object-fit:cover; vertical-align:middle; }
+        .prod-emoji { width:36px; height:36px; border-radius:8px; background:rgba(255,255,255,0.06); display:inline-flex; align-items:center; justify-content:center; font-size:18px; vertical-align:middle; }
+
+        /* IMG BOX */
+        .img-box { width:44px; height:44px; border:2px dashed rgba(56,189,248,.35); border-radius:10px; cursor:pointer; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; transition:.2s; }
+        .img-box:hover { border-color:var(--accent); background:rgba(56,189,248,.05); }
+        .img-box input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; padding:0; }
+        .img-box .ico { font-size:18px; pointer-events:none; }
+        .img-box img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+
+        /* GAME CARDS */
+        .game-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-bottom:20px; }
+        .game-card {
+            background:rgba(255,255,255,0.03); border:1px solid var(--card-border);
+            border-radius:12px; padding:14px 16px; cursor:pointer; transition:all .2s;
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .game-card:hover, .game-card.active { border-color:rgba(56,189,248,.4); background:rgba(56,189,248,.05); }
+        .game-card-left { display:flex; align-items:center; gap:10px; }
+        .game-card-icon { font-size:26px; width:40px; height:40px; display:flex; align-items:center; justify-content:center; border-radius:8px; overflow:hidden; }
+        .game-card-icon img { width:100%; height:100%; object-fit:cover; border-radius:8px; }
+
+        /* Icon upload box di modal */
+        .icon-upload-box {
+            width:80px; height:80px; border:2px dashed rgba(56,189,248,.4); border-radius:12px;
+            cursor:pointer; position:relative; overflow:hidden; display:flex; flex-direction:column;
+            align-items:center; justify-content:center; transition:.2s; background:rgba(255,255,255,.03);
+            margin: 0 auto;
+        }
+        .icon-upload-box:hover { border-color:var(--accent); background:rgba(56,189,248,.07); }
+        .icon-upload-box input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; padding:0; }
+        .icon-upload-box img { width:100%; height:100%; object-fit:cover; position:absolute; inset:0; border-radius:10px; }
+        .icon-upload-box .ico-label { font-size:22px; pointer-events:none; }
+        .icon-upload-box .ico-text { font-size:9px; color:var(--text-muted); margin-top:4px; pointer-events:none; letter-spacing:.5px; }
+        .icon-or { text-align:center; font-size:11px; color:var(--text-muted); margin:8px 0; }
+        .icon-row { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:4px; }
+        .emoji-opt { font-size:22px; width:38px; height:38px; display:flex; align-items:center; justify-content:center; border-radius:8px; border:2px solid transparent; cursor:pointer; background:rgba(255,255,255,.04); transition:.15s; }
+        .emoji-opt:hover { border-color:rgba(56,189,248,.4); background:rgba(56,189,248,.08); }
+        .emoji-opt.selected { border-color:var(--accent); background:rgba(56,189,248,.15); }
+        .game-card-name { font-size:14px; font-weight:700; }
+        .game-card-sub { font-size:11px; color:var(--text-muted); margin-top:2px; }
+        .item-count-badge { background:rgba(56,189,248,.1); color:var(--accent); border-radius:20px; padding:1px 8px; font-size:10px; font-weight:700; }
+
+        /* FORM ITEM */
+        .form-item-grid { display:grid; grid-template-columns:1.5fr 0.8fr 1fr 0.6fr 44px auto; gap:10px; margin-bottom:16px; align-items:end; }
+
+        /* MODAL */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:100; display:none; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+        .modal-overlay.show { display:flex; }
+        .modal { background:#141c2e; border:1px solid rgba(56,189,248,.2); border-radius:18px; padding:28px; width:420px; max-width:90vw; animation:modalIn .25s ease; }
+        @keyframes modalIn { from{transform:scale(.95);opacity:0} to{transform:scale(1);opacity:1} }
+        .modal h3 { font-size:16px; font-weight:700; margin-bottom:20px; }
+        .modal-grid { display:grid; gap:12px; }
+        .modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+
+        /* TOAST */
+        .toast { position:fixed; bottom:20px; right:20px; z-index:999; background:#1e293b; border:1px solid rgba(56,189,248,.3); border-radius:10px; padding:12px 18px; font-size:13px; color:var(--accent); transform:translateY(60px); opacity:0; transition:all .3s cubic-bezier(.16,1,.3,1); }
+        .toast.show { transform:translateY(0); opacity:1; }
+        .toast.err { color:var(--danger); border-color:rgba(248,113,113,.3); }
+
+        .empty { text-align:center; padding:36px; color:var(--text-muted); }
+        .empty .ico { font-size:28px; margin-bottom:8px; }
+        .loading { text-align:center; padding:24px; color:var(--text-muted); font-size:13px; }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <h2>LIFJARZSTORE.ID</h2>
+        <nav>
+            <a class="active" onclick="go('dashboard',this)">📊 Dashboard</a>
+            <a onclick="go('produk',this)">📦 Produk</a>
+            <a onclick="go('promo',this)">🏷️ Promo</a>
+            <a onclick="go('banner',this)">🖼️ Banner</a>
+            <a onclick="go('flashsale',this)">⚡ Flash Sale</a>
+            <a onclick="go('transaksi',this)">💳 Transaksi</a>
+            <a class="logout" onclick="doLogout()">🚪 Logout</a>
+        </nav>
+    </aside>
+
+    <div class="main">
+        <header class="topbar">
+            <h1 id="pageTitle">Dashboard</h1>
+            <div class="topbar-right">
+                <div class="live-badge"><div class="live-dot"></div>Live</div>
+                <span id="lastUpdate" style="font-size:11px;color:var(--text-muted);"></span>
+                <span style="font-size:13px;">Admin</span>
+            </div>
+        </header>
+
+        <!-- DASHBOARD -->
+        <div id="sec-dashboard">
+            <!-- Filter Periode -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:12px;color:var(--text-muted);font-weight:600;">📅 Periode:</span>
+                    <select id="filter-bulan" onchange="loadDashboard()" style="font-size:12px;padding:6px 12px;border-radius:8px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--text);width:auto;">
+                        <option value="0">Januari</option>
+                        <option value="1">Februari</option>
+                        <option value="2">Maret</option>
+                        <option value="3">April</option>
+                        <option value="4">Mei</option>
+                        <option value="5">Juni</option>
+                        <option value="6">Juli</option>
+                        <option value="7">Agustus</option>
+                        <option value="8">September</option>
+                        <option value="9">Oktober</option>
+                        <option value="10">November</option>
+                        <option value="11">Desember</option>
+                    </select>
+                    <select id="filter-tahun" onchange="loadDashboard()" style="font-size:12px;padding:6px 12px;border-radius:8px;background:var(--card-bg);border:1px solid var(--card-border);color:var(--text);width:auto;">
+                    </select>
+                    <button onclick="resetFilterBulan()" style="font-size:11px;padding:6px 12px;border-radius:8px;background:rgba(56,189,248,.1);color:var(--accent);border:1px solid rgba(56,189,248,.2);cursor:pointer;font-weight:600;">Bulan Ini</button>
+                </div>
+                <div id="periode-label" style="font-size:11px;color:var(--text-muted);"></div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card"><h3>Total Produk</h3><p id="s-produk">—</p></div>
+                <div class="stat-card"><h3>Transaksi Bulan Ini</h3><p id="s-trx">—</p></div>
+                <div class="stat-card omzet"><h3>Omzet Bulan Ini</h3><p id="s-omzet">—</p></div>
+                <div class="stat-card pending"><h3>Pending</h3><p id="s-pending">—</p></div>
+            </div>
+
+            <!-- Mini chart omset per game -->
+            <div class="section-box" style="margin-bottom:20px;">
+                <div class="sec-head">
+                    <h2>📊 Omzet per Game</h2>
+                    <span class="sec-note" id="omzet-periode-label"></span>
+                </div>
+                <div id="omzet-per-game" style="display:flex;flex-direction:column;gap:10px;"></div>
+            </div>
+
+            <div class="section-box">
+                <div class="sec-head">
+                    <h2>Transaksi Bulan Ini</h2>
+                    <div class="live-badge"><div class="live-dot"></div>Auto-refresh 10s</div>
+                </div>
+                <div id="recent-trx">
+                    <div class="loading">⏳ Memuat data...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRODUK -->
+        <div id="sec-produk" style="display:none;">
+            <div class="section-box">
+                <div class="sec-head">
+                    <h2>Kategori Game</h2>
+                    <button class="btn btn-accent2" onclick="openAddGameModal()">+ Tambah Game</button>
+                </div>
+                <div class="game-cards" id="game-cards">
+                    <div class="loading">⏳ Memuat data...</div>
+                </div>
+            </div>
+
+            <!-- Detail Item per Game -->
+            <div class="section-box" id="game-item-panel" style="display:none;">
+                <div class="sec-head">
+                    <h2 id="game-item-title">Items</h2>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <span class="sec-note" id="game-item-sub"></span>
+                        <button class="btn btn-del btn-sm" onclick="deleteGame()" id="btn-delete-game">🗑️ Hapus Game</button>
+                    </div>
+                </div>
+                <div style="background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:12px;padding:16px;margin-bottom:16px;">
+                    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:12px;">Tambah Item Baru</div>
+                    <div class="form-item-grid">
+                        <div><span class="fl">Nama Item</span><input id="p-item" placeholder="Weekly Diamond Pass"></div>
+                        <div><span class="fl">Jumlah</span><input id="p-amount" type="number" placeholder="86"></div>
+                        <div><span class="fl">Harga (Rp)</span><input id="p-price" type="number" placeholder="15000"></div>
+                        <div><span class="fl">Satuan</span><input id="p-currency" placeholder="Diamonds"></div>
+                        <div>
+                            <span class="fl">Foto</span>
+                            <div class="img-box" id="imgBox" title="Upload foto">
+                                <span class="ico">📷</span>
+                                <input type="file" id="p-image" accept="image/*" onchange="previewAndUploadImg(this)">
+                            </div>
+                        </div>
+                        <div style="align-self:end;"><button class="btn btn-primary" style="width:100%;padding:9px;" onclick="addItem()">+</button></div>
+                    </div>
+                </div>
+                <div id="item-list"></div>
+            </div>
+        </div>
+
+        <!-- PROMO -->
+        <div id="sec-promo" style="display:none;">
+            <div class="section-box">
+                <div class="sec-head">
+                    <h2>Manajemen Promo</h2>
+                    <span class="sec-note">Langsung aktif di website</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1.2fr 0.8fr 1fr 1fr auto;gap:10px;margin-bottom:20px;align-items:end;">
+                    <div><span class="fl">Kode Promo</span><input id="pr-code" placeholder="LIFJARZ10"></div>
+                    <div><span class="fl">Diskon %</span><input id="pr-discount" type="number" placeholder="10"></div>
+                    <div><span class="fl">Min. Pembelian (Rp)</span><input id="pr-min" type="number" placeholder="0"></div>
+                    <div><span class="fl">Expire</span><input id="pr-expire" type="date"></div>
+                    <div style="align-self:end;"><button class="btn btn-primary" onclick="addPromo()">+ Tambah</button></div>
+                </div>
+                <div id="promo-list"><div class="loading">⏳ Memuat data...</div></div>
+            </div>
+        </div>
+
+        <!-- TRANSAKSI -->
+        <div id="sec-transaksi" style="display:none;">
+            <div class="section-box">
+                <div class="sec-head">
+                    <h2>Semua Transaksi</h2>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <select id="trx-filter" onchange="loadTransaksi()" style="width:140px;font-size:12px;padding:6px 10px;">
+                            <option value="">Semua Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="success">Success</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                        <div class="live-badge"><div class="live-dot"></div>Auto-refresh 10s</div>
+                    </div>
+                </div>
+                <div id="trx-list"><div class="loading">⏳ Memuat data...</div></div>
+            </div>
+        </div>
+
+        <!-- BANNER -->
+        <div id="sec-banner" style="display:none;">
+            <div class="section-box">
+                <div class="sec-head">
+                    <h2>Manajemen Banner</h2>
+                    <span class="sec-note">Banner tampil di halaman utama website</span>
+                </div>
+                <!-- Form tambah banner -->
+                <div style="background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:12px;padding:20px;margin-bottom:20px;">
+                    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:14px;">Tambah / Edit Banner</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                        <div><span class="fl">Judul Banner</span><input id="bn-title" placeholder="Power Up Your Game!"></div>
+                        <div><span class="fl">Sub Judul</span><input id="bn-subtitle" placeholder="Top-Up Terpercaya"></div>
+                    </div>
+                    <div style="margin-bottom:14px;"><span class="fl">Deskripsi</span><input id="bn-desc" placeholder="Top-up diamond dan UC favorit..."></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:end;">
+                        <div>
+                            <span class="fl">Warna Gradien</span>
+                            <select id="bn-color">
+                                <option value="linear-gradient(135deg,#1565c0,#6a1b9a)">Biru - Ungu</option>
+                                <option value="linear-gradient(135deg,#b71c1c,#880e4f)">Merah - Pink</option>
+                                <option value="linear-gradient(135deg,#00695c,#0d47a1)">Hijau - Biru</option>
+                                <option value="linear-gradient(135deg,#e65100,#b71c1c)">Orange - Merah</option>
+                                <option value="linear-gradient(135deg,#1a237e,#4a148c)">Navy - Ungu Tua</option>
+                            </select>
+                        </div>
+                        <div><span class="fl">Emoji / Ikon</span><input id="bn-emoji" placeholder="🎮" style="font-size:20px;"></div>
+                        <div><span class="fl">Teks Tombol</span><input id="bn-btn" placeholder="Top-Up Sekarang"></div>
+                        <div><button class="btn btn-primary" onclick="saveBanner()" id="bn-save-btn">+ Tambah</button></div>
+                    </div>
+                    <input type="hidden" id="bn-editing-id">
+                </div>
+                <!-- List banner -->
+                <div id="banner-list"><div class="loading">⏳ Memuat data...</div></div>
+            </div>
+        </div>
+
+        <!-- FLASH SALE -->
+        <div id="sec-flashsale" style="display:none;">
+            <div class="section-box">
+                <div class="sec-head">
+                    <h2>⚡ Manajemen Flash Sale</h2>
+                    <span class="sec-note">Produk yang ditampilkan di section Flash Sale</span>
+                </div>
+                <!-- Pilih produk untuk flash sale -->
+                <div style="background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:12px;padding:20px;margin-bottom:20px;">
+                    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:14px;">Tambah Item Flash Sale</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:end;">
+                        <div>
+                            <span class="fl">Pilih Game</span>
+                            <select id="fs-game" onchange="loadFsProducts()">
+                                <option value="">-- Pilih Game --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <span class="fl">Pilih Produk</span>
+                            <select id="fs-product">
+                                <option value="">-- Pilih Produk --</option>
+                            </select>
+                        </div>
+                        <div><span class="fl">Diskon (%)</span><input id="fs-discount" type="number" placeholder="10" min="1" max="99"></div>
+                        <div><button class="btn btn-primary" onclick="addFlashSale()">+ Tambah</button></div>
+                    </div>
+                </div>
+                <!-- Flash sale list -->
+                <div id="flashsale-list"><div class="loading">⏳ Memuat data...</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL TAMBAH GAME -->
+<div class="modal-overlay" id="addGameModal">
+    <div class="modal" style="width:460px;">
+        <h3>✨ Tambah Game Baru</h3>
+        <div class="modal-grid">
+            <div><span class="fl">Nama Game</span><input id="mg-name" placeholder="Mobile Legends"></div>
+            <div>
+                <span class="fl">Icon Game</span>
+                <div style="display:flex;gap:16px;align-items:flex-start;margin-top:4px;">
+                    <!-- Upload gambar -->
+                    <div>
+                        <div class="icon-upload-box" id="iconUploadBox" title="Klik untuk upload gambar">
+                            <span class="ico-label" id="iconUploadIco">🖼️</span>
+                            <span class="ico-text" id="iconUploadTxt">Upload</span>
+                            <input type="file" id="mg-icon-file" accept="image/*" onchange="previewGameIcon(this)">
+                        </div>
+                        <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:4px;">Gambar</div>
+                    </div>
+                    <!-- Atau pilih emoji -->
+                    <div style="flex:1;">
+                        <div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;letter-spacing:.5px;">ATAU PILIH EMOJI</div>
+                        <div class="icon-row" id="emoji-picker">
+                            <div class="emoji-opt" onclick="selectEmoji('⚔️',this)">⚔️</div>
+                            <div class="emoji-opt" onclick="selectEmoji('🔥',this)">🔥</div>
+                            <div class="emoji-opt" onclick="selectEmoji('🎯',this)">🎯</div>
+                            <div class="emoji-opt" onclick="selectEmoji('✨',this)">✨</div>
+                            <div class="emoji-opt" onclick="selectEmoji('🎮',this)">🎮</div>
+                            <div class="emoji-opt" onclick="selectEmoji('🏆',this)">🏆</div>
+                            <div class="emoji-opt" onclick="selectEmoji('🎖️',this)">🎖️</div>
+                            <div class="emoji-opt" onclick="selectEmoji('🌟',this)">🌟</div>
+                            <div class="emoji-opt" onclick="selectEmoji('💥',this)">💥</div>
+                            <div class="emoji-opt" onclick="selectEmoji('🛡️',this)">🛡️</div>
+                            <div class="emoji-opt" onclick="selectEmoji('⚡',this)">⚡</div>
+                            <div class="emoji-opt" onclick="selectEmoji('🗡️',this)">🗡️</div>
+                        </div>
+                        <div style="margin-top:8px;">
+                            <input id="mg-icon-emoji" placeholder="Ketik emoji sendiri..." style="font-size:18px;padding:7px 10px;" oninput="onEmojiInput(this)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div><span class="fl">Mata Uang Item</span><input id="mg-currency" placeholder="Diamonds"></div>
+            <div><span class="fl">Deskripsi singkat</span><input id="mg-desc" placeholder="Top up ML cepat & aman"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-sm btn-del" onclick="closeModal('addGameModal')">Batal</button>
+            <button class="btn btn-primary btn-sm" onclick="addGame()">Simpan Game</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL UPDATE STATUS TRANSAKSI -->
+<div class="modal-overlay" id="statusModal">
+    <div class="modal">
+        <h3>💳 Update Status Transaksi</h3>
+        <div class="modal-grid">
+            <div id="statusModalInfo" style="font-size:13px;color:var(--text-muted);margin-bottom:8px;"></div>
+            <div>
+                <span class="fl">Status Baru</span>
+                <select id="new-status">
+                    <option value="pending">Pending</option>
+                    <option value="success">Success</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-sm btn-del" onclick="closeModal('statusModal')">Batal</button>
+            <button class="btn btn-primary btn-sm" onclick="updateStatus()">Simpan</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:3000';
+let token = localStorage.getItem('admin_token');
+let selectedGameName = null;
+let editingTrxId = null;
+let uploadedImageFilename = null;
+
+// ===================== AUTH =====================
+if (!token) {
+    window.location.href = 'login.html';
+}
+
+function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+}
+
+function doLogout() {
+    if (confirm('Yakin mau logout?')) {
+        localStorage.removeItem('admin_token');
+        window.location.href = 'login.html';
+    }
+}
+
+// ===================== NAV =====================
+function go(page, el) {
+    document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+    if (el) el.classList.add('active');
+    ['dashboard','produk','promo','transaksi','banner','flashsale'].forEach(s => {
+        document.getElementById('sec-'+s).style.display = s === page ? '' : 'none';
+    });
+    const titles = {dashboard:'Dashboard',produk:'Manajemen Produk',promo:'Promo & Diskon',transaksi:'Transaksi',banner:'Manajemen Banner',flashsale:'Flash Sale'};
+    document.getElementById('pageTitle').textContent = titles[page] || page;
+
+    if (page === 'dashboard') loadDashboard();
+    if (page === 'produk')    loadGameCards();
+    if (page === 'promo')     loadPromos();
+    if (page === 'transaksi') loadTransaksi();
+    if (page === 'banner')    loadBanners();
+    if (page === 'flashsale') loadFlashSales();
+    updateTime();
+}
+
+function updateTime() {
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('id-ID');
+}
+
+// ===================== DASHBOARD =====================
+function initFilterPeriode() {
+    const now = new Date();
+    // Isi tahun (3 tahun ke belakang sampai sekarang)
+    const selTahun = document.getElementById('filter-tahun');
+    for (let y = now.getFullYear(); y >= now.getFullYear() - 3; y--) {
+        const o = document.createElement('option');
+        o.value = y; o.textContent = y;
+        selTahun.appendChild(o);
+    }
+    // Set default ke bulan & tahun sekarang
+    document.getElementById('filter-bulan').value = now.getMonth();
+    selTahun.value = now.getFullYear();
+}
+
+function resetFilterBulan() {
+    const now = new Date();
+    document.getElementById('filter-bulan').value = now.getMonth();
+    document.getElementById('filter-tahun').value = now.getFullYear();
+    loadDashboard();
+}
+
+async function loadDashboard() {
+    const bulan = parseInt(document.getElementById('filter-bulan')?.value ?? new Date().getMonth());
+    const tahun = parseInt(document.getElementById('filter-tahun')?.value ?? new Date().getFullYear());
+
+    const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const labelPeriode = `${namaBulan[bulan]} ${tahun}`;
+
+    if (document.getElementById('periode-label'))
+        document.getElementById('periode-label').textContent = `Menampilkan data: ${labelPeriode}`;
+    if (document.getElementById('omzet-periode-label'))
+        document.getElementById('omzet-periode-label').textContent = labelPeriode;
+
+    try {
+        const [prodRes, trxRes] = await Promise.all([
+            fetch(`${API}/products`),
+            fetch(`${API}/transactions`, { headers: authHeaders() })
+        ]);
+        const products = await prodRes.json();
+        let trxList  = await trxRes.json();
+
+        // Filter berdasarkan bulan & tahun
+        trxList = trxList.filter(t => {
+            const d = new Date(t.created_at);
+            return d.getMonth() === bulan && d.getFullYear() === tahun;
+        });
+
+        const trxSuccess = trxList.filter(t => t.status === 'success');
+        const omzet = trxSuccess.reduce((a,t) => a + Number(t.total_price||0), 0);
+
+        document.getElementById('s-produk').textContent  = products.filter(p => p.item_name !== '__game_meta__').length;
+        document.getElementById('s-trx').textContent     = trxList.length;
+        document.getElementById('s-pending').textContent = trxList.filter(t => t.status === 'pending').length;
+        document.getElementById('s-omzet').textContent   = 'Rp ' + omzet.toLocaleString('id-ID');
+
+        // Omzet per game
+        renderOmzetPerGame(trxSuccess);
+        renderRecentTrx(trxList.slice(0, 20));
+    } catch(e) {
+        document.getElementById('recent-trx').innerHTML = '<div class="empty"><div class="ico">⚠️</div><p>Gagal memuat data. Cek koneksi ke server.</p></div>';
+    }
+}
+
+function renderOmzetPerGame(trxSuccess) {
+    const el = document.getElementById('omzet-per-game');
+    if (!el) return;
+    if (!trxSuccess.length) {
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">Belum ada transaksi sukses di periode ini.</div>';
+        return;
+    }
+
+    // Hitung omzet per game
+    const gameMap = {};
+    trxSuccess.forEach(t => {
+        if (!gameMap[t.game_name]) gameMap[t.game_name] = 0;
+        gameMap[t.game_name] += Number(t.total_price || 0);
+    });
+
+    const maxOmzet = Math.max(...Object.values(gameMap));
+    const sorted = Object.entries(gameMap).sort((a,b) => b[1]-a[1]);
+
+    el.innerHTML = sorted.map(([game, total]) => {
+        const pct = maxOmzet > 0 ? Math.round((total / maxOmzet) * 100) : 0;
+        return `
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:110px;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${game}</div>
+                <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:6px;height:22px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;transition:width .5s ease;display:flex;align-items:center;padding-left:8px;">
+                        <span style="font-size:10px;font-weight:700;color:#000;white-space:nowrap;">${pct}%</span>
+                    </div>
+                </div>
+                <div style="width:130px;font-size:12px;font-weight:700;color:var(--success);text-align:right;">Rp ${total.toLocaleString('id-ID')}</div>
+            </div>`;
+    }).join('');
+}
+
+function renderRecentTrx(list) {
+    const el = document.getElementById('recent-trx');
+    if (!list.length) {
+        el.innerHTML = '<div class="empty"><div class="ico">📋</div><p>Belum ada transaksi</p></div>';
+        return;
+    }
+    el.innerHTML = `
+        <table class="tbl">
+            <thead><tr>
+                <th>Kode</th><th>Game</th><th>User ID</th><th>Item</th><th>Total</th><th>Metode</th><th>Status</th><th>Waktu</th>
+            </tr></thead>
+            <tbody>
+                ${list.map(t => `
+                    <tr>
+                        <td style="font-family:monospace;font-size:11px;color:var(--accent);">${t.trx_code}</td>
+                        <td>${t.game_name}</td>
+                        <td>${t.user_id}</td>
+                        <td style="font-size:11px;color:var(--text-muted);">${t.item_name||'—'}</td>
+                        <td style="color:var(--success);font-weight:600;">Rp ${Number(t.total_price||0).toLocaleString('id-ID')}</td>
+                        <td style="font-size:11px;">${t.payment_method}</td>
+                        <td>${badgeHtml(t.status)}</td>
+                        <td style="font-size:11px;color:var(--text-muted);">${new Date(t.created_at).toLocaleString('id-ID')}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
+// ===================== GAME CARDS =====================
+async function loadGameCards() {
+    const el = document.getElementById('game-cards');
+    el.innerHTML = '<div class="loading">⏳ Memuat data...</div>';
+    try {
+        const res = await fetch(`${API}/products`);
+        const products = await res.json();
+
+        // Kelompokkan produk per game
+        const gameMap = {};
+        products.forEach(p => {
+            if (!gameMap[p.game_name]) gameMap[p.game_name] = [];
+            gameMap[p.game_name].push(p);
+        });
+
+        const games = Object.keys(gameMap);
+        if (!games.length) {
+            el.innerHTML = '<div class="empty"><div class="ico">🎮</div><p>Belum ada game/produk. Tambahkan game baru!</p></div>';
+            return;
+        }
+
+        el.innerHTML = games.map(g => {
+            const prods = gameMap[g];
+            // Cari gambar icon: dari produk yang item_name = '__game_meta__', atau produk pertama yang punya image
+            const metaProd  = prods.find(p => p.item_name === '__game_meta__');
+            const imgProd   = metaProd?.image ? metaProd : prods.find(p => p.image);
+            const iconHtml  = imgProd
+                ? `<img src="${API}/uploads/${imgProd.image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                : `<span>${getGameEmoji(g)}</span>`;
+            const currency  = prods.find(p => p.item_name !== '__game_meta__')?.currency || prods[0]?.currency || 'Item';
+            const itemCount = prods.filter(p => p.item_name !== '__game_meta__').length;
+            return `
+                <div class="game-card ${selectedGameName===g?'active':''}" onclick="selectGame('${g.replace(/'/g,"\\'")}')">
+                    <div class="game-card-left">
+                        <div class="game-card-icon">${iconHtml}</div>
+                        <div>
+                            <div class="game-card-name">${g}</div>
+                            <div class="game-card-sub">${currency}</div>
+                        </div>
+                    </div>
+                    <span class="item-count-badge">${itemCount} item</span>
+                </div>
+            `;
+        }).join('');
+
+        if (selectedGameName && gameMap[selectedGameName]) {
+            renderItemList(gameMap[selectedGameName], selectedGameName);
+        }
+    } catch(e) {
+        el.innerHTML = '<div class="empty"><div class="ico">⚠️</div><p>Gagal memuat produk.</p></div>';
+    }
+}
+
+function getGameEmoji(g) {
+    const map = {'Mobile Legends':'⚔️','Free Fire':'🔥','PUBG Mobile':'🎯','Genshin Impact':'✨','Valorant':'🎮','COD Mobile':'🎖️'};
+    return map[g] || '🎮';
+}
+
+async function selectGame(gameName) {
+    selectedGameName = gameName;
+    // Update active card
+    document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    document.getElementById('game-item-panel').style.display = '';
+    document.getElementById('game-item-title').textContent = getGameEmoji(gameName) + ' ' + gameName;
+
+    // Fetch items for game
+    try {
+        const res = await fetch(`${API}/products?game=${encodeURIComponent(gameName)}`);
+        const allProds = await res.json();
+        // Filter produk meta (placeholder game)
+        const products = allProds.filter(p => p.item_name !== '__game_meta__');
+        if (allProds.length) {
+            const realProd = products[0] || allProds[0];
+            document.getElementById('game-item-sub').textContent = realProd.currency || '';
+            document.getElementById('p-currency').value = realProd.currency || '';
+        }
+        renderItemList(products, gameName);
+    } catch(e) {
+        document.getElementById('item-list').innerHTML = '<div class="empty"><div class="ico">⚠️</div><p>Gagal memuat item.</p></div>';
+    }
+}
+
+function renderItemList(products, gameName) {
+    const cont = document.getElementById('item-list');
+    if (!products.length) {
+        cont.innerHTML = `<div class="empty"><div class="ico">📦</div><p>Belum ada item. Tambah item di atas!</p></div>`;
+        return;
+    }
+    cont.innerHTML = `
+        <table class="tbl">
+            <thead><tr>
+                <th>Foto</th><th>Nama Item</th><th>Jumlah</th><th>Satuan</th><th>Harga</th><th>Status</th><th>Aksi</th>
+            </tr></thead>
+            <tbody>
+                ${products.map(p => `
+                    <tr>
+                        <td>${p.image
+                            ? `<img src="${API}/uploads/${p.image}" class="prod-img">`
+                            : `<div class="prod-emoji">📦</div>`
+                        }</td>
+                        <td style="font-weight:600;">${p.item_name}</td>
+                        <td>${Number(p.amount||0).toLocaleString('id')}</td>
+                        <td><span style="font-size:11px;color:var(--text-muted);">${p.currency||'—'}</span></td>
+                        <td style="color:var(--accent);font-weight:600;">Rp ${Number(p.price).toLocaleString('id')}</td>
+                        <td><span class="badge ${p.is_active ? 'b-ok':'b-no'}">${p.is_active?'Aktif':'Nonaktif'}</span></td>
+                        <td style="display:flex;gap:6px;">
+                            <button class="btn btn-sm btn-edit" onclick="toggleActive(${p.id},${p.is_active})">${p.is_active?'Nonaktifkan':'Aktifkan'}</button>
+                            <button class="btn btn-sm btn-del" onclick="deleteItem(${p.id})">Hapus</button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
+// ===================== ITEM CRUD =====================
+async function addItem() {
+    if (!selectedGameName) return showToast('Pilih game dulu!', true);
+    const item_name = document.getElementById('p-item').value.trim();
+    const amount    = parseFloat(document.getElementById('p-amount').value) || 0;
+    const price     = parseFloat(document.getElementById('p-price').value);
+    const currency  = document.getElementById('p-currency').value.trim();
+
+    if (!item_name || !price) return showToast('Nama & harga wajib diisi!', true);
+
+    try {
+        const res = await fetch(`${API}/products`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({
+                game_name: selectedGameName,
+                item_name, amount, price,
+                currency: currency || 'Diamonds',
+                image: uploadedImageFilename || null
+            })
+        });
+        const data = await res.json();
+        if (!res.ok) return showToast(data.message || 'Gagal tambah produk', true);
+
+        document.getElementById('p-item').value = '';
+        document.getElementById('p-amount').value = '';
+        document.getElementById('p-price').value = '';
+        uploadedImageFilename = null;
+        resetImgBox();
+
+        showToast('✅ Item berhasil ditambahkan!');
+        selectGame(selectedGameName);
+        loadGameCards();
+    } catch(e) {
+        showToast('Gagal terhubung ke server!', true);
+    }
+}
+
+async function deleteItem(id) {
+    if (!confirm('Hapus item ini?')) return;
+    try {
+        const res = await fetch(`${API}/products/${id}`, { method: 'DELETE', headers: authHeaders() });
+        if (!res.ok) return showToast('Gagal hapus item', true);
+        showToast('🗑️ Item dihapus');
+        selectGame(selectedGameName);
+        loadGameCards();
+    } catch(e) {
+        showToast('Gagal terhubung ke server!', true);
+    }
+}
+
+async function toggleActive(id, currentStatus) {
+    // Kita perlu data produk lengkap untuk update
+    try {
+        const res = await fetch(`${API}/products?game=${encodeURIComponent(selectedGameName)}`);
+        const products = await res.json();
+        const p = products.find(x => x.id === id);
+        if (!p) return;
+
+        const updateRes = await fetch(`${API}/products/${id}`, {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({
+                game_name: p.game_name,
+                item_name: p.item_name,
+                amount: p.amount,
+                price: p.price,
+                currency: p.currency,
+                image: p.image,
+                is_active: currentStatus ? 0 : 1
+            })
+        });
+        if (!updateRes.ok) return showToast('Gagal update', true);
+        showToast(currentStatus ? '🔴 Produk dinonaktifkan' : '🟢 Produk diaktifkan');
+        selectGame(selectedGameName);
+    } catch(e) {
+        showToast('Gagal terhubung ke server!', true);
+    }
+}
+
+// ===================== GAME CRUD =====================
+let gameIconFilename  = null; // hasil upload gambar
+let gameIconEmoji     = null; // emoji yang dipilih
+
+function openAddGameModal() {
+    document.getElementById('mg-name').value     = '';
+    document.getElementById('mg-currency').value = '';
+    document.getElementById('mg-desc').value     = '';
+    document.getElementById('mg-icon-emoji').value = '';
+    gameIconFilename = null;
+    gameIconEmoji    = null;
+    // Reset upload box
+    const box = document.getElementById('iconUploadBox');
+    const img = box.querySelector('img'); if (img) img.remove();
+    document.getElementById('iconUploadIco').style.display = '';
+    document.getElementById('iconUploadTxt').style.display = '';
+    document.getElementById('mg-icon-file').value = '';
+    // Reset emoji selection
+    document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
+    document.getElementById('addGameModal').classList.add('show');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+async function previewGameIcon(input) {
+    if (!input.files[0]) return;
+    const file = input.files[0];
+
+    // Preview di box
+    const r = new FileReader();
+    r.onload = e => {
+        const box = document.getElementById('iconUploadBox');
+        let img = box.querySelector('img');
+        if (!img) { img = document.createElement('img'); box.appendChild(img); }
+        img.src = e.target.result;
+        document.getElementById('iconUploadIco').style.display = 'none';
+        document.getElementById('iconUploadTxt').style.display = 'none';
+    };
+    r.readAsDataURL(file);
+
+    // Reset emoji pilihan karena pakai gambar
+    gameIconEmoji = null;
+    document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
+    document.getElementById('mg-icon-emoji').value = '';
+
+    // Upload ke server
+    try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch(`${API}/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+            gameIconFilename = data.filename;
+            showToast('🖼️ Icon berhasil diupload!');
+        } else {
+            showToast('Gagal upload icon: ' + (data.message||''), true);
+        }
+    } catch(e) {
+        showToast('Gagal upload icon!', true);
+    }
+}
+
+function selectEmoji(emoji, el) {
+    // Reset gambar kalau pilih emoji
+    gameIconFilename = null;
+    const box = document.getElementById('iconUploadBox');
+    const img = box.querySelector('img'); if (img) img.remove();
+    document.getElementById('iconUploadIco').style.display = '';
+    document.getElementById('iconUploadTxt').style.display = '';
+    document.getElementById('mg-icon-file').value = '';
+
+    gameIconEmoji = emoji;
+    document.getElementById('mg-icon-emoji').value = emoji;
+    document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+}
+
+function onEmojiInput(input) {
+    // User ketik emoji manual
+    gameIconEmoji = input.value.trim() || null;
+    gameIconFilename = null;
+    const box = document.getElementById('iconUploadBox');
+    const img = box.querySelector('img'); if (img) img.remove();
+    document.getElementById('iconUploadIco').style.display = '';
+    document.getElementById('iconUploadTxt').style.display = '';
+    document.querySelectorAll('.emoji-opt').forEach(e => e.classList.remove('selected'));
+}
+
+async function addGame() {
+    const game_name   = document.getElementById('mg-name').value.trim();
+    const currency    = document.getElementById('mg-currency').value.trim() || 'Coins';
+    const description = document.getElementById('mg-desc').value.trim();
+    if (!game_name) return showToast('Nama game wajib diisi!', true);
+
+    // Tentukan icon: gambar atau emoji
+    const iconValue = gameIconFilename ? `__img__${gameIconFilename}` : (gameIconEmoji || '🎮');
+
+    try {
+        const res = await fetch(`${API}/products`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({
+                game_name,
+                item_name: '__game_meta__',
+                amount: 0,
+                price: 0,
+                currency,
+                description,
+                image: gameIconFilename || null,
+                // Simpan emoji di field currency sementara kita pakai image untuk icon
+            })
+        });
+        if (!res.ok) { const d=await res.json(); return showToast(d.message||'Gagal tambah game', true); }
+        closeModal('addGameModal');
+        gameIconFilename = null;
+        gameIconEmoji    = null;
+        showToast('🎮 Game ' + game_name + ' ditambahkan!');
+        loadGameCards();
+    } catch(e) {
+        showToast('Gagal terhubung ke server!', true);
+    }
+}
+
+async function deleteGame() {
+    if (!selectedGameName) return;
+    if (!confirm(`Hapus semua produk game "${selectedGameName}"?`)) return;
+    try {
+        const res = await fetch(`${API}/products?game=${encodeURIComponent(selectedGameName)}`);
+        const products = await res.json();
+        await Promise.all(products.map(p =>
+            fetch(`${API}/products/${p.id}`, { method: 'DELETE', headers: authHeaders() })
+        ));
+        selectedGameName = null;
+        document.getElementById('game-item-panel').style.display = 'none';
+        showToast('🗑️ Game dihapus');
+        loadGameCards();
+    } catch(e) {
+        showToast('Gagal hapus game', true);
+    }
+}
+
+// ===================== IMAGE UPLOAD =====================
+let currentImgData = null;
+
+async function previewAndUploadImg(input) {
+    if (!input.files[0]) return;
+    const file = input.files[0];
+
+    // Preview
+    const r = new FileReader();
+    r.onload = e => {
+        currentImgData = e.target.result;
+        const box = document.getElementById('imgBox');
+        let img = box.querySelector('img');
+        if (!img) { img = document.createElement('img'); box.appendChild(img); }
+        img.src = currentImgData;
+        box.querySelector('.ico').style.display = 'none';
+    };
+    r.readAsDataURL(file);
+
+    // Upload ke server
+    try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch(`${API}/upload`, {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+            uploadedImageFilename = data.filename;
+            showToast('📷 Foto berhasil diupload');
+        } else {
+            showToast('Gagal upload foto: ' + (data.message||''), true);
+        }
+    } catch(e) {
+        showToast('Gagal upload foto!', true);
+    }
+}
+
+function resetImgBox() {
+    currentImgData = null;
+    uploadedImageFilename = null;
+    const box = document.getElementById('imgBox');
+    const img = box.querySelector('img');
+    if (img) img.remove();
+    box.querySelector('.ico').style.display = '';
+    document.getElementById('p-image').value = '';
+}
+
+// ===================== PROMO =====================
+async function loadPromos() {
+    const el = document.getElementById('promo-list');
+    el.innerHTML = '<div class="loading">⏳ Memuat data...</div>';
+    try {
+        const res = await fetch(`${API}/promos`, { headers: authHeaders() });
+        const promos = await res.json();
+        if (!promos.length) {
+            el.innerHTML = '<div class="empty"><div class="ico">🏷️</div><p>Belum ada promo</p></div>';
+            return;
+        }
+        el.innerHTML = `
+            <table class="tbl">
+                <thead><tr><th>Kode</th><th>Diskon</th><th>Min. Pembelian</th><th>Status</th><th>Expire</th><th>Aksi</th></tr></thead>
+                <tbody>
+                    ${promos.map(p => {
+                        const expired = p.expired_at && new Date(p.expired_at) < new Date();
+                        const status = p.is_active && !expired ? '<span class="badge b-ok">Aktif</span>' : '<span class="badge b-no">Nonaktif</span>';
+                        return `
+                            <tr>
+                                <td><span style="font-weight:700;color:var(--accent);">${p.code}</span></td>
+                                <td><span class="badge b-ok">${p.discount}%</span></td>
+                                <td>Rp ${Number(p.min_purchase||0).toLocaleString('id')}</td>
+                                <td>${status}</td>
+                                <td style="color:var(--text-muted);">${p.expired_at ? new Date(p.expired_at).toLocaleDateString('id-ID') : '—'}</td>
+                                <td><button class="btn btn-sm btn-del" onclick="deletePromo(${p.id})">Hapus</button></td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch(e) {
+        el.innerHTML = '<div class="empty"><div class="ico">⚠️</div><p>Gagal memuat promo.</p></div>';
+    }
+}
+
+async function addPromo() {
+    const code     = document.getElementById('pr-code').value.trim().toUpperCase();
+    const discount = parseFloat(document.getElementById('pr-discount').value);
+    const min      = parseFloat(document.getElementById('pr-min').value) || 0;
+    const expire   = document.getElementById('pr-expire').value;
+    if (!code || !discount) return showToast('Kode & diskon wajib diisi!', true);
+
+    try {
+        const res = await fetch(`${API}/promos`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ code, discount, min_purchase: min, expired_at: expire || null })
+        });
+        const data = await res.json();
+        if (!res.ok) return showToast(data.message || 'Gagal tambah promo', true);
+
+        ['pr-code','pr-discount','pr-min','pr-expire'].forEach(id => document.getElementById(id).value = '');
+        showToast('🏷️ Promo ' + code + ' ditambahkan!');
+        loadPromos();
+    } catch(e) {
+        showToast('Gagal terhubung ke server!', true);
+    }
+}
+
+async function deletePromo(id) {
+    if (!confirm('Hapus promo ini?')) return;
+    try {
+        const res = await fetch(`${API}/promos/${id}`, { method: 'DELETE', headers: authHeaders() });
+        if (!res.ok) return showToast('Gagal hapus promo', true);
+        showToast('🗑️ Promo dihapus');
+        loadPromos();
+    } catch(e) {
+        showToast('Gagal terhubung ke server!', true);
+    }
+}
+
+// ===================== TRANSAKSI =====================
+async function loadTransaksi() {
+    const el     = document.getElementById('trx-list');
+    const filter = document.getElementById('trx-filter')?.value || '';
+    el.innerHTML = '<div class="loading">⏳ Memuat data...</div>';
+    try {
+        const res  = await fetch(`${API}/transactions`, { headers: authHeaders() });
+        let trxList = await res.json();
+        if (filter) trxList = trxList.filter(t => t.status === filter);
+
+        if (!trxList.length) {
+            el.innerHTML = '<div class="empty"><div class="ico">💳</div><p>Belum ada transaksi</p></div>';
+            return;
+        }
+        el.innerHTML = `
+            <table class="tbl">
+                <thead><tr>
+                    <th>Kode</th><th>Game</th><th>User ID</th><th>Item</th><th>Total</th><th>Metode</th><th>Email</th><th>Status</th><th>Waktu</th><th>Aksi</th>
+                </tr></thead>
+                <tbody>
+                    ${trxList.map(t => `
+                        <tr>
+                            <td style="font-family:monospace;font-size:11px;color:var(--accent);">${t.trx_code}</td>
+                            <td>${t.game_name}</td>
+                            <td>${t.user_id}${t.zone_id ? '<br><span style="font-size:10px;color:var(--text-muted);">Zone: '+t.zone_id+'</span>' : ''}</td>
+                            <td style="font-size:11px;">${t.item_name||'—'}</td>
+                            <td style="color:var(--success);font-weight:600;">Rp ${Number(t.total_price||0).toLocaleString('id-ID')}</td>
+                            <td style="font-size:11px;">${t.payment_method}</td>
+                            <td style="font-size:11px;color:var(--text-muted);">${t.email||'—'}</td>
+                            <td>${badgeHtml(t.status)}</td>
+                            <td style="font-size:11px;color:var(--text-muted);">${new Date(t.created_at).toLocaleString('id-ID')}</td>
+                            <td><button class="btn btn-sm btn-edit" onclick="openStatusModal(${t.id},'${t.trx_code}','${t.status}')">Update</button></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch(e) {
+        el.innerHTML = '<div class="empty"><div class="ico">⚠️</div><p>Gagal memuat transaksi.</p></div>';
+    }
+}
+
+function openStatusModal(id, code, currentStatus) {
+    editingTrxId = id;
+    document.getElementById('statusModalInfo').textContent = `Kode: ${code} — Status saat ini: ${currentStatus}`;
+    document.getElementById('new-status').value = currentStatus;
+    document.getElementById('statusModal').classList.add('show');
+}
+
+async function updateStatus() {
+    const newStatus = document.getElementById('new-status').value;
+    try {
+        const res = await fetch(`${API}/transactions/${editingTrxId}`, {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (!res.ok) return showToast('Gagal update status', true);
+        closeModal('statusModal');
+        showToast('✅ Status diupdate ke ' + newStatus);
+        loadTransaksi();
+        loadDashboard();
+    } catch(e) {
+        showToast('Gagal terhubung ke server!', true);
+    }
+}
+
+// ===================== HELPERS =====================
+function badgeHtml(status) {
+    const map = {
+        pending: 'b-pend',
+        success: 'b-ok',
+        failed:  'b-no'
+    };
+    return `<span class="badge ${map[status]||'b-pend'}">${status||'pending'}</span>`;
+}
+
+function showToast(msg, isErr=false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isErr ? ' err' : '');
+    setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', function(e) {
+        if (e.target === this) closeModal(this.id);
+    });
+});
+
+// ===================== BANNER =====================
+async function loadBanners() {
+    const el = document.getElementById('banner-list');
+    el.innerHTML = '<div class="loading">⏳ Memuat data...</div>';
+    try {
+        const res = await fetch(`${API}/banners`, { headers: authHeaders() });
+        const data = await res.json();
+        if (!data.length) {
+            el.innerHTML = '<div class="empty"><div class="ico">🖼️</div><p>Belum ada banner. Tambahkan banner di atas!</p></div>';
+            return;
+        }
+        el.innerHTML = `
+            <table class="tbl">
+                <thead><tr>
+                    <th>Preview</th><th>Judul</th><th>Sub Judul</th><th>Deskripsi</th><th>Tombol</th><th>Status</th><th>Aksi</th>
+                </tr></thead>
+                <tbody>
+                    ${data.map(b => `
+                        <tr>
+                            <td>
+                                <div style="width:90px;height:50px;border-radius:8px;background:${b.color};display:flex;align-items:center;justify-content:center;font-size:1.5rem;overflow:hidden;">
+                                    ${b.emoji || '🎮'}
+                                </div>
+                            </td>
+                            <td style="font-weight:600;">${b.title}</td>
+                            <td style="font-size:11px;color:var(--text-muted);">${b.subtitle || '—'}</td>
+                            <td style="font-size:11px;color:var(--text-muted);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.description || '—'}</td>
+                            <td style="font-size:11px;">${b.btn_text || '—'}</td>
+                            <td><span class="badge ${b.is_active ? 'b-ok' : 'b-no'}">${b.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
+                            <td style="display:flex;gap:6px;">
+                                <button class="btn btn-sm btn-edit" onclick="editBanner(${b.id},'${escJs(b.title)}','${escJs(b.subtitle)}','${escJs(b.description)}','${escJs(b.color)}','${escJs(b.emoji)}','${escJs(b.btn_text)}')">Edit</button>
+                                <button class="btn btn-sm btn-ok" onclick="toggleBanner(${b.id},${b.is_active})">${b.is_active ? 'Nonaktif' : 'Aktif'}kan</button>
+                                <button class="btn btn-sm btn-del" onclick="deleteBanner(${b.id})">Hapus</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>`;
+    } catch(e) {
+        el.innerHTML = '<div class="empty"><div class="ico">⚠️</div><p>Gagal memuat banner.</p></div>';
+    }
+}
+
+function escJs(str) { return (str||'').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+
+function editBanner(id, title, subtitle, desc, color, emoji, btn) {
+    document.getElementById('bn-editing-id').value = id;
+    document.getElementById('bn-title').value = title;
+    document.getElementById('bn-subtitle').value = subtitle;
+    document.getElementById('bn-desc').value = desc;
+    document.getElementById('bn-color').value = color;
+    document.getElementById('bn-emoji').value = emoji;
+    document.getElementById('bn-btn').value = btn;
+    document.getElementById('bn-save-btn').textContent = '💾 Simpan';
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function saveBanner() {
+    const editingId = document.getElementById('bn-editing-id').value;
+    const title    = document.getElementById('bn-title').value.trim();
+    const subtitle = document.getElementById('bn-subtitle').value.trim();
+    const desc     = document.getElementById('bn-desc').value.trim();
+    const color    = document.getElementById('bn-color').value;
+    const emoji    = document.getElementById('bn-emoji').value.trim() || '🎮';
+    const btn_text = document.getElementById('bn-btn').value.trim() || 'Top-Up Sekarang';
+
+    if (!title) return showToast('Judul banner wajib diisi!', true);
+
+    try {
+        const method = editingId ? 'PUT' : 'POST';
+        const url    = editingId ? `${API}/banners/${editingId}` : `${API}/banners`;
+        const res = await fetch(url, {
+            method,
+            headers: authHeaders(),
+            body: JSON.stringify({ title, subtitle, description: desc, color, emoji, btn_text })
+        });
+        if (!res.ok) { const d = await res.json(); return showToast(d.message || 'Gagal simpan', true); }
+
+        ['bn-title','bn-subtitle','bn-desc','bn-emoji','bn-btn'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('bn-editing-id').value = '';
+        document.getElementById('bn-save-btn').textContent = '+ Tambah';
+        showToast(editingId ? '✅ Banner diupdate!' : '🖼️ Banner ditambahkan!');
+        loadBanners();
+    } catch(e) { showToast('Gagal terhubung ke server!', true); }
+}
+
+async function toggleBanner(id, current) {
+    try {
+        const res = await fetch(`${API}/banners/${id}/toggle`, { method: 'PUT', headers: authHeaders() });
+        if (!res.ok) return showToast('Gagal update', true);
+        showToast(current ? '🔴 Banner dinonaktifkan' : '🟢 Banner diaktifkan');
+        loadBanners();
+    } catch(e) { showToast('Gagal terhubung!', true); }
+}
+
+async function deleteBanner(id) {
+    if (!confirm('Hapus banner ini?')) return;
+    try {
+        const res = await fetch(`${API}/banners/${id}`, { method: 'DELETE', headers: authHeaders() });
+        if (!res.ok) return showToast('Gagal hapus', true);
+        showToast('🗑️ Banner dihapus');
+        loadBanners();
+    } catch(e) { showToast('Gagal terhubung!', true); }
+}
+
+// ===================== FLASH SALE =====================
+async function loadFlashSales() {
+    const el = document.getElementById('flashsale-list');
+    el.innerHTML = '<div class="loading">⏳ Memuat data...</div>';
+
+    // Load game list for dropdown
+    try {
+        const prodRes = await fetch(`${API}/products`);
+        const products = await prodRes.json();
+        const games = [...new Set(products.filter(p=>p.item_name!=='__game_meta__').map(p=>p.game_name))];
+        const selGame = document.getElementById('fs-game');
+        selGame.innerHTML = '<option value="">-- Pilih Game --</option>';
+        games.forEach(g => {
+            const o = document.createElement('option'); o.value=g; o.textContent=g; selGame.appendChild(o);
+        });
+        window._allFsProducts = products.filter(p=>p.item_name!=='__game_meta__');
+    } catch(e) {}
+
+    // Load flash sales
+    try {
+        const res = await fetch(`${API}/flashsales`, { headers: authHeaders() });
+        const data = await res.json();
+        if (!data.length) {
+            el.innerHTML = '<div class="empty"><div class="ico">⚡</div><p>Belum ada item Flash Sale. Tambahkan di atas!</p></div>';
+            return;
+        }
+        el.innerHTML = `
+            <table class="tbl">
+                <thead><tr>
+                    <th>Game</th><th>Produk</th><th>Harga Asli</th><th>Diskon</th><th>Harga Sale</th><th>Status</th><th>Aksi</th>
+                </tr></thead>
+                <tbody>
+                    ${data.map(f => {
+                        const salePrice = Math.round(f.price * (100 - f.discount) / 100);
+                        return `<tr>
+                            <td style="font-weight:600;">${f.game_name}</td>
+                            <td style="font-size:12px;">${f.amount} ${f.currency || 'Item'}</td>
+                            <td style="color:var(--text-muted);text-decoration:line-through;font-size:12px;">Rp ${Number(f.price).toLocaleString('id-ID')}</td>
+                            <td><span class="badge b-no">-${f.discount}%</span></td>
+                            <td style="color:var(--warning);font-weight:700;">Rp ${salePrice.toLocaleString('id-ID')}</td>
+                            <td><span class="badge ${f.is_active ? 'b-ok' : 'b-no'}">${f.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
+                            <td style="display:flex;gap:6px;">
+                                <button class="btn btn-sm btn-ok" onclick="toggleFlashSale(${f.id},${f.is_active})">${f.is_active ? 'Nonaktif' : 'Aktif'}kan</button>
+                                <button class="btn btn-sm btn-del" onclick="deleteFlashSale(${f.id})">Hapus</button>
+                            </td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>`;
+    } catch(e) {
+        el.innerHTML = '<div class="empty"><div class="ico">⚠️</div><p>Gagal memuat flash sale.</p></div>';
+    }
+}
+
+function loadFsProducts() {
+    const game = document.getElementById('fs-game').value;
+    const sel = document.getElementById('fs-product');
+    sel.innerHTML = '<option value="">-- Pilih Produk --</option>';
+    if (!game || !window._allFsProducts) return;
+    window._allFsProducts.filter(p=>p.game_name===game).forEach(p => {
+        const o = document.createElement('option');
+        o.value = p.id;
+        o.textContent = `${p.amount} ${p.currency||'Item'} — Rp ${Number(p.price).toLocaleString('id-ID')}`;
+        sel.appendChild(o);
+    });
+}
+
+async function addFlashSale() {
+    const productId = document.getElementById('fs-product').value;
+    const discount  = parseFloat(document.getElementById('fs-discount').value);
+    if (!productId) return showToast('Pilih produk terlebih dahulu!', true);
+    if (!discount || discount < 1 || discount > 99) return showToast('Diskon harus antara 1-99%!', true);
+
+    try {
+        const res = await fetch(`${API}/flashsales`, {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ product_id: productId, discount })
+        });
+        const data = await res.json();
+        if (!res.ok) return showToast(data.message || 'Gagal tambah flash sale', true);
+        document.getElementById('fs-product').value = '';
+        document.getElementById('fs-discount').value = '';
+        showToast('⚡ Flash Sale ditambahkan!');
+        loadFlashSales();
+    } catch(e) { showToast('Gagal terhubung ke server!', true); }
+}
+
+async function toggleFlashSale(id, current) {
+    try {
+        const res = await fetch(`${API}/flashsales/${id}/toggle`, { method: 'PUT', headers: authHeaders() });
+        if (!res.ok) return showToast('Gagal update', true);
+        showToast(current ? '🔴 Flash Sale dinonaktifkan' : '🟢 Flash Sale diaktifkan');
+        loadFlashSales();
+    } catch(e) { showToast('Gagal terhubung!', true); }
+}
+
+async function deleteFlashSale(id) {
+    if (!confirm('Hapus item flash sale ini?')) return;
+    try {
+        const res = await fetch(`${API}/flashsales/${id}`, { method: 'DELETE', headers: authHeaders() });
+        if (!res.ok) return showToast('Gagal hapus', true);
+        showToast('🗑️ Flash Sale dihapus');
+        loadFlashSales();
+    } catch(e) { showToast('Gagal terhubung!', true); }
+}
+
+// ===================== INIT =====================
+initFilterPeriode();
+loadDashboard();
+setInterval(updateTime, 10000);
+updateTime();
+
+// Auto-refresh setiap 10 detik tergantung halaman aktif
+setInterval(() => {
+    const activeSection = ['dashboard','produk','promo','transaksi','banner','flashsale']
+        .find(s => document.getElementById('sec-'+s).style.display !== 'none');
+    if (activeSection === 'dashboard') loadDashboard();
+    if (activeSection === 'transaksi') loadTransaksi();
+}, 10000);
+</script>
+</body>
+</html>

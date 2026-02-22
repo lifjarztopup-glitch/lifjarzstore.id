@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFJARZ Admin Login</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-card {
+            background: #1e1e2f;
+            padding: 40px;
+            width: 350px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            text-align: center;
+            color: white;
+        }
+        h1 { margin-bottom: 5px; font-size: 22px; }
+        .subtitle { color: #aaa; margin-bottom: 25px; font-size: 13px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            background: #2b2b3d;
+            color: white;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input::placeholder { color: #888; }
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(to right, #0072ff, #00c6ff);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .btn-login:hover { opacity: 0.9; }
+        .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+        .error-msg {
+            background: rgba(248,113,113,0.15);
+            border: 1px solid rgba(248,113,113,0.4);
+            color: #f87171;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 14px;
+            font-size: 13px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>LIFJARZ Admin</h1>
+        <p class="subtitle">Silakan login untuk melanjutkan</p>
+        <div class="error-msg" id="error-msg"></div>
+        <input type="text" id="username" placeholder="Username" onkeydown="if(event.key==='Enter')login()">
+        <input type="password" id="password" placeholder="Password" onkeydown="if(event.key==='Enter')login()">
+        <button class="btn-login" id="btn-login" onclick="login()">Login</button>
+    </div>
+
+    <script>
+        const API = 'http://localhost:3000';
+
+        // Jika sudah login, redirect ke dashboard
+        if (localStorage.getItem('admin_token')) {
+            window.location.href = 'dashboard.html';
+        }
+
+        async function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btn-login');
+            const errEl = document.getElementById('error-msg');
+
+            if (!username || !password) {
+                showError('Username dan password wajib diisi!');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Logging in...';
+            errEl.style.display = 'none';
+
+            try {
+                const res = await fetch(`${API}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.token) {
+                    localStorage.setItem('admin_token', data.token);
+                    window.location.href = 'dashboard.html';
+                } else {
+                    showError(data.message || 'Login gagal!');
+                }
+            } catch (err) {
+                showError('Tidak bisa terhubung ke server. Pastikan server berjalan!');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Login';
+            }
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error-msg');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
