@@ -470,7 +470,7 @@ async function loadBanners() {
     }).join('');
 
     dots.innerHTML = active.map((_, i) =>
-      `<div class="banner-dot ${i===0?'active':''" onclick="goSlide(${i})"></div>`
+      `<div class="banner-dot ${i===0?'active':''}" onclick="goSlide(${i})"></div>`
     ).join('');
 
     currentSlide = 0;
