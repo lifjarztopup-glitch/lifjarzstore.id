@@ -390,6 +390,16 @@ select option{background:#fff;color:#222;}
 
 <script>
 const API = "https://lifjarzstoreid-production.up.railway.app";
+// Helper: return full media URL (support Supabase URL atau filename lama)
+function mediaUrl(img) {
+  if (!img) return null;
+  if (img.startsWith('http')) return img;
+  return `${API}/uploads/${img}`;
+}
+function isVideoFile(img) {
+  if (!img) return false;
+  return img.endsWith('.mp4') || img.endsWith('.webm') || img.includes('.mp4?') || img.includes('.webm?');
+}
 let allProducts = [];
 let selectedProductId = null;
 let selectedPrice = 0;
@@ -450,11 +460,11 @@ async function loadBanners() {
 
     slider.innerHTML = active.map((b, i) => {
       const bg = b.image
-        ? `background:url(\'${API}/uploads/${b.image}\') center/cover no-repeat`
+        ? `background:url(\'${mediaUrl(b.image)}\') center/cover no-repeat`
         : `background:${b.color || SLIDE_COLORS[i % SLIDE_COLORS.length]}`;
-      const isVideo = b.image && (b.image.endsWith('.mp4') || b.image.endsWith('.webm'));
+      const isVideo = isVideoFile(b.image);
       const mediaBg = isVideo
-        ? `<video autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"><source src="${API}/uploads/${b.image}"></video><div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);z-index:1"></div>`
+        ? `<video autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"><source src="${mediaUrl(b.image)}"></video><div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);z-index:1"></div>`
         : '';
       const bgStyle = isVideo ? 'background:#000' : bg;
       return `<div class="banner-slide" style="${bgStyle};position:relative;">
@@ -518,9 +528,9 @@ function getGameGradient(g) {
 }
 function getGameImage(gameName) {
   const meta = (window._metaProds||[]).find(p=>p.game_name===gameName&&p.image);
-  if (meta) return `${API}/uploads/${meta.image}`;
+  if (meta) return mediaUrl(meta.image);
   const from = allProducts.find(p=>p.game_name===gameName&&p.image);
-  if (from) return `${API}/uploads/${from.image}`;
+  if (from) return mediaUrl(from.image);
   return null;
 }
 

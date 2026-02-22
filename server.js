@@ -6,8 +6,15 @@ const bcrypt  = require("bcrypt");
 const multer  = require("multer");
 const path    = require("path");
 const fs      = require("fs");
+const { createClient } = require("@supabase/supabase-js");
 
 const SECRET_KEY = "lifjarz_super_secret_key";
+
+// ✅ Supabase config
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const SUPABASE_BUCKET = "uploads";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const app = express();
 app.use(cors());
@@ -18,21 +25,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/admin",   express.static(path.join(__dirname, "admin")));
 app.use("/css",     express.static(path.join(__dirname, "css")));
 app.use("/js",      express.static(path.join(__dirname, "js")));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Multer config
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const dir = path.join(__dirname, "uploads");
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-    },
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname);
-        cb(null, "product-" + Date.now() + ext);
-    }
-});
-const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 } });
+// ✅ Multer config (pakai memory storage, file tidak disimpan ke disk)
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
 
 const db = mysql.createConnection({
     host: process.env.MYSQLHOST,
@@ -72,10 +67,28 @@ function verifyToken(req, res, next) {
 }
 
 
-// ✅ Upload foto produk
-app.post("/upload", verifyToken, upload.single("image"), (req, res) => {
+// ✅ Upload foto/video ke Supabase Storage
+app.post("/upload", verifyToken, upload.single("image"), async (req, res) => {
     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-    res.json({ filename: req.file.filename });
+
+    const ext = path.extname(req.file.originalname);
+    const filename = "product-" + Date.now() + ext;
+
+    const { error } = await supabase.storage
+        .from(SUPABASE_BUCKET)
+        .upload(filename, req.file.buffer, {
+            contentType: req.file.mimetype,
+            upsert: false
+        });
+
+    if (error) {
+        console.error("Supabase upload error:", error);
+        return res.status(500).json({ message: "Gagal upload ke storage" });
+    }
+
+    const { data } = supabase.storage.from(SUPABASE_BUCKET).getPublicUrl(filename);
+    // Return full public URL agar bisa disimpan langsung ke DB
+    res.json({ filename: data.publicUrl, url: data.publicUrl });
 });
 
 
@@ -355,11 +368,11 @@ app.get("/banners", (req, res) => {
 
 // ADMIN - Tambah banner
 app.post("/banners", verifyToken, (req, res) => {
-    const { title, subtitle, description, color, emoji, btn_text } = req.body;
+    const { title, subtitle, description, color, emoji, btn_text, image } = req.body;
     if (!title) return res.status(400).json({ message: "Judul wajib diisi" });
     db.query(
-        "INSERT INTO banners (title, subtitle, description, color, emoji, btn_text) VALUES (?, ?, ?, ?, ?, ?)",
-        [title, subtitle || null, description || null, color || "linear-gradient(135deg,#1565c0,#6a1b9a)", emoji || "🎮", btn_text || "Top-Up Sekarang"],
+        "INSERT INTO banners (title, subtitle, description, color, emoji, btn_text, image) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [title, subtitle || null, description || null, color || "linear-gradient(135deg,#1565c0,#6a1b9a)", emoji || "🎮", btn_text || "Top-Up Sekarang", image || null],
         (err, result) => {
             if (err) return res.status(500).json({ message: "Database error" });
             res.json({ message: "Banner ditambahkan", id: result.insertId });
@@ -369,10 +382,10 @@ app.post("/banners", verifyToken, (req, res) => {
 
 // ADMIN - Edit banner
 app.put("/banners/:id", verifyToken, (req, res) => {
-    const { title, subtitle, description, color, emoji, btn_text } = req.body;
+    const { title, subtitle, description, color, emoji, btn_text, image } = req.body;
     db.query(
-        "UPDATE banners SET title=?, subtitle=?, description=?, color=?, emoji=?, btn_text=? WHERE id=?",
-        [title, subtitle || null, description || null, color, emoji || "🎮", btn_text || "Top-Up Sekarang", req.params.id],
+        "UPDATE banners SET title=?, subtitle=?, description=?, color=?, emoji=?, btn_text=?, image=? WHERE id=?",
+        [title, subtitle || null, description || null, color, emoji || "🎮", btn_text || "Top-Up Sekarang", image || null, req.params.id],
         (err) => {
             if (err) return res.status(500).json({ message: "Database error" });
             res.json({ message: "Banner diupdate" });
