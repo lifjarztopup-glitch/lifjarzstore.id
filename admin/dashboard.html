@@ -353,9 +353,29 @@
                         <div><span class="fl">Sub Judul</span><input id="bn-subtitle" placeholder="Top-Up Terpercaya"></div>
                     </div>
                     <div style="margin-bottom:14px;"><span class="fl">Deskripsi</span><input id="bn-desc" placeholder="Top-up diamond dan UC favorit..."></div>
+
+                    <!-- UPLOAD FOTO / VIDEO -->
+                    <div style="margin-bottom:14px;">
+                        <span class="fl">📸 Upload Foto / Video Banner (opsional)</span>
+                        <div id="bn-upload-box" onclick="document.getElementById('bn-media-input').click()" style="border:2px dashed rgba(56,189,248,0.3);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(56,189,248,0.03);" onmouseover="this.style.borderColor='rgba(56,189,248,0.7)'" onmouseout="this.style.borderColor='rgba(56,189,248,0.3)'">
+                            <div id="bn-upload-preview" style="display:none;position:relative;display:none;">
+                                <img id="bn-preview-img" style="max-height:140px;border-radius:8px;max-width:100%;display:none;">
+                                <video id="bn-preview-vid" style="max-height:140px;border-radius:8px;max-width:100%;display:none;" muted loop autoplay></video>
+                                <button onclick="event.stopPropagation();clearBannerMedia()" style="position:absolute;top:6px;right:6px;background:#f87171;border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:12px;line-height:1;">✕</button>
+                            </div>
+                            <div id="bn-upload-placeholder">
+                                <div style="font-size:2rem;margin-bottom:8px;">🖼️</div>
+                                <div style="font-size:13px;color:var(--accent);font-weight:700;">Klik untuk pilih foto atau video</div>
+                                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">JPG, PNG, GIF, MP4, WebM • Maks 10MB</div>
+                            </div>
+                        </div>
+                        <input type="file" id="bn-media-input" accept="image/*,video/*" style="display:none;" onchange="previewBannerMedia(this)">
+                        <input type="hidden" id="bn-media-filename">
+                    </div>
+
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:end;">
                         <div>
-                            <span class="fl">Warna Gradien</span>
+                            <span class="fl">Warna Gradien (jika tanpa foto)</span>
                             <select id="bn-color">
                                 <option value="linear-gradient(135deg,#1565c0,#6a1b9a)">Biru - Ungu</option>
                                 <option value="linear-gradient(135deg,#b71c1c,#880e4f)">Merah - Pink</option>
@@ -1274,6 +1294,33 @@ function editBanner(id, title, subtitle, desc, color, emoji, btn) {
     window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// Preview foto/video banner
+function previewBannerMedia(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { showToast('File terlalu besar! Maksimal 10MB', true); input.value = ''; return; }
+    const placeholder = document.getElementById('bn-upload-placeholder');
+    const preview = document.getElementById('bn-upload-preview');
+    const img = document.getElementById('bn-preview-img');
+    const vid = document.getElementById('bn-preview-vid');
+    placeholder.style.display = 'none';
+    preview.style.display = 'block';
+    img.style.display = 'none';
+    vid.style.display = 'none';
+    const url = URL.createObjectURL(file);
+    if (file.type.startsWith('video/')) { vid.src = url; vid.style.display = 'block'; }
+    else { img.src = url; img.style.display = 'block'; }
+}
+
+function clearBannerMedia() {
+    document.getElementById('bn-media-input').value = '';
+    document.getElementById('bn-media-filename').value = '';
+    document.getElementById('bn-upload-placeholder').style.display = 'block';
+    document.getElementById('bn-upload-preview').style.display = 'none';
+    document.getElementById('bn-preview-img').src = '';
+    document.getElementById('bn-preview-vid').src = '';
+}
+
 async function saveBanner() {
     const editingId = document.getElementById('bn-editing-id').value;
     const title    = document.getElementById('bn-title').value.trim();
@@ -1282,22 +1329,47 @@ async function saveBanner() {
     const color    = document.getElementById('bn-color').value;
     const emoji    = document.getElementById('bn-emoji').value.trim() || '🎮';
     const btn_text = document.getElementById('bn-btn').value.trim() || 'Top-Up Sekarang';
+    const mediaFile = document.getElementById('bn-media-input').files[0];
 
     if (!title) return showToast('Judul banner wajib diisi!', true);
 
     try {
+        let image = document.getElementById('bn-media-filename').value || null;
+
+        if (mediaFile) {
+            const btn = document.getElementById('bn-save-btn');
+            btn.textContent = '⏳ Mengupload...';
+            btn.disabled = true;
+            const formData = new FormData();
+            formData.append('image', mediaFile);
+            const uploadRes = await fetch(`${API}/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: formData
+            });
+            btn.disabled = false;
+            if (!uploadRes.ok) {
+                showToast('Gagal upload media!', true);
+                btn.textContent = editingId ? '💾 Simpan' : '+ Tambah';
+                return;
+            }
+            const uploadData = await uploadRes.json();
+            image = uploadData.filename || uploadData.file || uploadData.image || null;
+        }
+
         const method = editingId ? 'PUT' : 'POST';
         const url    = editingId ? `${API}/banners/${editingId}` : `${API}/banners`;
         const res = await fetch(url, {
             method,
             headers: authHeaders(),
-            body: JSON.stringify({ title, subtitle, description: desc, color, emoji, btn_text })
+            body: JSON.stringify({ title, subtitle, description: desc, color, emoji, btn_text, image })
         });
         if (!res.ok) { const d = await res.json(); return showToast(d.message || 'Gagal simpan', true); }
 
         ['bn-title','bn-subtitle','bn-desc','bn-emoji','bn-btn'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('bn-editing-id').value = '';
         document.getElementById('bn-save-btn').textContent = '+ Tambah';
+        clearBannerMedia();
         showToast(editingId ? '✅ Banner diupdate!' : '🖼️ Banner ditambahkan!');
         loadBanners();
     } catch(e) { showToast('Gagal terhubung ke server!', true); }
