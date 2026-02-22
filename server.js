@@ -43,6 +43,11 @@ db.connect((err) => {
         return;
     }
     console.log("MySQL Connected...");
+    // Auto-migrate: tambah kolom image di banners kalau belum ada
+    db.query("ALTER TABLE banners ADD COLUMN IF NOT EXISTS image VARCHAR(500) NULL", (err) => {
+        if (err) console.log("Column image sudah ada atau error:", err.message);
+        else console.log("Kolom image di banners siap.");
+    });
 });
 
 app.get("/", (req, res) => {
