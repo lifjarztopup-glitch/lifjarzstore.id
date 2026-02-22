@@ -1,6 +1,6 @@
 if (!localStorage.getItem("token")) window.location.href = "login.html";
 
-const API = "http://localhost:3000";
+const API ="https://lifjarzstoreid-production.up.railway.app";
 const TK  = localStorage.getItem("token");
 const H   = { "Authorization": "Bearer " + TK };
 const HJ  = { ...H, "Content-Type": "application/json" };
