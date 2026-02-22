@@ -35,10 +35,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { fileSize: 2 * 1024 * 1024 } });
 
 const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "lifjarz_db"
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT
 });
 
 db.connect((err) => {
@@ -458,7 +459,7 @@ app.delete("/flashsales/:id", verifyToken, (req, res) => {
 });
 
 
-app.listen(3000, () => {
-    console.log("\n🚀 http://localhost:3000");
-    console.log("📋 Admin: http://localhost:3000/admin/login.html");
+app.listen(process.env.PORT || 3000, () => {
+    console.log("\n🚀 Server running on port " + (process.env.PORT || 3000));
+    console.log("📋 Admin: /admin/login.html");
 });
