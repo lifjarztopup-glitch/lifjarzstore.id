@@ -227,41 +227,11 @@ select option{background:#fff;color:#222;}
     <!-- HERO BANNER -->
     <div class="hero">
       <div class="banner-slider" id="bannerSlider">
-        <div class="banner-slide slide-1">
-          <div class="slide-content">
-            <div class="slide-badge">⚡ Top-Up Terpercaya</div>
-            <h2>Power Up<br>Your Game!</h2>
-            <p>Top-up diamond, UC, dan item favoritmu. Proses instan!</p>
-            <button class="slide-cta" onclick="openOrderModal()">Top-Up Sekarang</button>
-          </div>
-          <div class="slide-emoji">🎮</div>
-        </div>
-        <div class="banner-slide slide-2">
-          <div class="slide-content">
-            <div class="slide-badge">🔥 Flash Sale Aktif</div>
-            <h2>Harga<br>Termurah!</h2>
-            <p>Diamond dan UC harga spesial. Penawaran terbatas!</p>
-            <button class="slide-cta" onclick="document.getElementById('flashsale').scrollIntoView({behavior:'smooth'})">Lihat Flash Sale</button>
-          </div>
-          <div class="slide-emoji">💎</div>
-        </div>
-        <div class="banner-slide slide-3">
-          <div class="slide-content">
-            <div class="slide-badge">🛡️ 100% Aman</div>
-            <h2>Transaksi<br>Terjamin!</h2>
-            <p>QRIS, GoPay, OVO, Dana, Transfer Bank. Aman!</p>
-            <button class="slide-cta" onclick="openOrderModal()">Order Sekarang</button>
-          </div>
-          <div class="slide-emoji">🔒</div>
-        </div>
+        <!-- Banner load dari API -->
       </div>
       <button class="banner-arrow left" onclick="slideBanner(-1)">‹</button>
       <button class="banner-arrow right" onclick="slideBanner(1)">›</button>
-      <div class="banner-dots" id="bannerDots">
-        <div class="banner-dot active" onclick="goSlide(0)"></div>
-        <div class="banner-dot" onclick="goSlide(1)"></div>
-        <div class="banner-dot" onclick="goSlide(2)"></div>
-      </div>
+      <div class="banner-dots" id="bannerDots"></div>
     </div>
 
     <!-- INFO CHIPS -->
@@ -428,13 +398,100 @@ let selectedPayment = "QRIS";
 
 // BANNER
 let currentSlide = 0;
-function slideBanner(dir) { currentSlide = (currentSlide + dir + 3) % 3; goSlide(currentSlide); }
+let totalSlides = 3;
+let bannerInterval = null;
+
+function slideBanner(dir) { currentSlide = (currentSlide + dir + totalSlides) % totalSlides; goSlide(currentSlide); }
 function goSlide(n) {
   currentSlide = n;
   document.getElementById('bannerSlider').style.transform = `translateX(-${n*100}%)`;
   document.querySelectorAll('.banner-dot').forEach((d,i) => d.classList.toggle('active', i===n));
 }
-setInterval(() => slideBanner(1), 4500);
+function startBannerAuto() {
+  if (bannerInterval) clearInterval(bannerInterval);
+  bannerInterval = setInterval(() => slideBanner(1), 4500);
+}
+
+const SLIDE_COLORS = [
+  'linear-gradient(135deg,#1565c0,#6a1b9a)',
+  'linear-gradient(135deg,#b71c1c,#880e4f)',
+  'linear-gradient(135deg,#00695c,#0d47a1)',
+  'linear-gradient(135deg,#e65100,#b71c1c)',
+  'linear-gradient(135deg,#1a237e,#4a148c)'
+];
+
+async function loadBanners() {
+  try {
+    const res = await fetch(`${API}/banners`);
+    const banners = await res.json();
+    const active = banners.filter(b => b.is_active);
+    const slider = document.getElementById('bannerSlider');
+    const dots = document.getElementById('bannerDots');
+
+    if (!active.length) {
+      // fallback default banner
+      slider.innerHTML = `
+        <div class="banner-slide" style="background:linear-gradient(135deg,#1565c0,#6a1b9a)">
+          <div class="slide-content">
+            <div class="slide-badge">⚡ Top-Up Terpercaya</div>
+            <h2>Power Up<br>Your Game!</h2>
+            <p>Top-up diamond, UC, dan item favoritmu. Proses instan!</p>
+            <button class="slide-cta" onclick="openOrderModal()">Top-Up Sekarang</button>
+          </div>
+          <div class="slide-emoji">🎮</div>
+        </div>`;
+      dots.innerHTML = '<div class="banner-dot active"></div>';
+      totalSlides = 1;
+      startBannerAuto();
+      return;
+    }
+
+    totalSlides = active.length;
+
+    slider.innerHTML = active.map((b, i) => {
+      const bg = b.image
+        ? `background:url(\'${API}/uploads/${b.image}\') center/cover no-repeat`
+        : `background:${b.color || SLIDE_COLORS[i % SLIDE_COLORS.length]}`;
+      const isVideo = b.image && (b.image.endsWith('.mp4') || b.image.endsWith('.webm'));
+      const mediaBg = isVideo
+        ? `<video autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;"><source src="${API}/uploads/${b.image}"></video><div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);z-index:1"></div>`
+        : '';
+      const bgStyle = isVideo ? 'background:#000' : bg;
+      return `<div class="banner-slide" style="${bgStyle};position:relative;">
+        ${mediaBg}
+        <div class="slide-content" style="position:relative;z-index:2;">
+          <div class="slide-badge">${b.subtitle || '⚡ LIFJARZSTORE.ID'}</div>
+          <h2>${b.title}</h2>
+          ${b.description ? `<p>${b.description}</p>` : ''}
+          <button class="slide-cta" onclick="openOrderModal()">${b.btn_text || 'Top-Up Sekarang'}</button>
+        </div>
+        ${!b.image ? `<div class="slide-emoji">${b.emoji || '🎮'}</div>` : ''}
+      </div>`;
+    }).join('');
+
+    dots.innerHTML = active.map((_, i) =>
+      `<div class="banner-dot ${i===0?'active':''" onclick="goSlide(${i})"></div>`
+    ).join('');
+
+    currentSlide = 0;
+    startBannerAuto();
+  } catch(e) {
+    // fallback jika gagal fetch
+    document.getElementById('bannerSlider').innerHTML = `
+      <div class="banner-slide" style="background:linear-gradient(135deg,#1565c0,#6a1b9a)">
+        <div class="slide-content">
+          <div class="slide-badge">⚡ Top-Up Terpercaya</div>
+          <h2>Power Up<br>Your Game!</h2>
+          <p>Top-up diamond, UC, dan item favoritmu!</p>
+          <button class="slide-cta" onclick="openOrderModal()">Top-Up Sekarang</button>
+        </div>
+        <div class="slide-emoji">🎮</div>
+      </div>`;
+    document.getElementById('bannerDots').innerHTML = '<div class="banner-dot active"></div>';
+    totalSlides = 1;
+    startBannerAuto();
+  }
+}
 
 // COUNTDOWN
 (function() {
@@ -648,6 +705,7 @@ function showToast(msg,type='success') {
   t.textContent=msg; t.className=`toast ${type} show`;
   setTimeout(()=>t.classList.remove('show'),3500);
 }
+loadBanners();
 loadGames();
 </script>
 </body>
