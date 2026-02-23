@@ -460,7 +460,7 @@ body.dark .trx-detail strong{color:#5ab8ff;}
 Kami berkomitmen memberikan pelayanan yang responsif, harga yang ramah, serta proses transaksi yang jelas tanpa ribet.</p>
     </div>
     <div class="footer-col"><h4>Navigasi</h4><ul><li><a href="#">Beranda</a></li><li><a href="#games">Daftar Game</a></li><li><a href="#flashsale">Flash Sale</a></li><li><a href="#cek">Cek Transaksi</a></li></ul></div>
-    <div class="footer-col"><h4>Dukungan</h4><ul><li><a href="https://wa.me/6289675622834" target="_blank">WhatsApp</a></li><li><a href="mailto:ryyml193319@gmail.com">Email</a></li></ul></div>
+    <div class="footer-col"><h4>Dukungan</h4><ul><li><a href="https://wa.me/6289675622834" target="_blank">WhatsApp</a></li><li><a href="/cdn-cgi/l/email-protection#33414a4a5e5f020a0000020a73545e525a5f1d505c5e">Email</a></li></ul></div>
     <div class="footer-col"><h4>Legalitas</h4><ul><li><a href="#">Syarat & Ketentuan</a></li><li><a href="#">Kebijakan Privasi</a></li></ul></div>
   </div>
   <div class="footer-bottom">
@@ -522,7 +522,7 @@ Kami berkomitmen memberikan pelayanan yang responsif, harga yang ramah, serta pr
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const API = "https://lifjarzstoreid-production.up.railway.app";
 let allProducts = [];
 let selectedProductId = null;
@@ -565,9 +565,9 @@ function getGameGradient(g) {
 }
 function getGameImage(gameName) {
   const meta = (window._metaProds||[]).find(p=>p.game_name===gameName&&p.image);
-  if (meta) return `${API}/uploads/${meta.image}`;
+  if (meta) return meta.image && meta.image.startsWith('http') ? meta.image : `${API}/uploads/${meta.image}`;
   const from = allProducts.find(p=>p.game_name===gameName&&p.image);
-  if (from) return `${API}/uploads/${from.image}`;
+  if (from) return from.image && from.image.startsWith('http') ? from.image : `${API}/uploads/${from.image}`;
   return null;
 }
 
@@ -830,10 +830,4 @@ loadGames();
   </svg>
 </button>
 <script>
-window.addEventListener('scroll', function(){
-  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 300);
-});
-</script>
-
-</body>
-</html>
+window.addEventLi
