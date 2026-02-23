@@ -307,42 +307,10 @@ body.dark .trx-detail strong{color:#5ab8ff;}
   <div class="main">
     <!-- HERO BANNER -->
     <div class="hero">
-      <div class="banner-slider" id="bannerSlider">
-        <div class="banner-slide slide-1">
-          <div class="slide-content">
-            <div class="slide-badge">⚡ Top-Up Terpercaya</div>
-            <h2>Power Up<br>Your Game!</h2>
-            <p>Top-up diamond, UC, dan item favoritmu. Proses instan!</p>
-            <button class="slide-cta" onclick="openOrderModal()">Top-Up Sekarang</button>
-          </div>
-          <div class="slide-emoji">🎮</div>
-        </div>
-        <div class="banner-slide slide-2">
-          <div class="slide-content">
-            <div class="slide-badge">🔥 Flash Sale Aktif</div>
-            <h2>Harga<br>Termurah!</h2>
-            <p>Diamond dan UC harga spesial. Penawaran terbatas!</p>
-            <button class="slide-cta" onclick="document.getElementById('flashsale').scrollIntoView({behavior:'smooth'})">Lihat Flash Sale</button>
-          </div>
-          <div class="slide-emoji">💎</div>
-        </div>
-        <div class="banner-slide slide-3">
-          <div class="slide-content">
-            <div class="slide-badge">🛡️ 100% Aman</div>
-            <h2>Transaksi<br>Terjamin!</h2>
-            <p>QRIS, GoPay, OVO, Dana, Transfer Bank. Aman!</p>
-            <button class="slide-cta" onclick="openOrderModal()">Order Sekarang</button>
-          </div>
-          <div class="slide-emoji">🔒</div>
-        </div>
-      </div>
+      <div class="banner-slider" id="bannerSlider"></div>
       <button class="banner-arrow left" onclick="slideBanner(-1)">‹</button>
       <button class="banner-arrow right" onclick="slideBanner(1)">›</button>
-      <div class="banner-dots" id="bannerDots">
-        <div class="banner-dot active" onclick="goSlide(0)"></div>
-        <div class="banner-dot" onclick="goSlide(1)"></div>
-        <div class="banner-dot" onclick="goSlide(2)"></div>
-      </div>
+      <div class="banner-dots" id="bannerDots"></div>
     </div>
 
     <!-- INFO CHIPS -->
@@ -460,7 +428,7 @@ body.dark .trx-detail strong{color:#5ab8ff;}
 Kami berkomitmen memberikan pelayanan yang responsif, harga yang ramah, serta proses transaksi yang jelas tanpa ribet.</p>
     </div>
     <div class="footer-col"><h4>Navigasi</h4><ul><li><a href="#">Beranda</a></li><li><a href="#games">Daftar Game</a></li><li><a href="#flashsale">Flash Sale</a></li><li><a href="#cek">Cek Transaksi</a></li></ul></div>
-    <div class="footer-col"><h4>Dukungan</h4><ul><li><a href="https://wa.me/6289675622834" target="_blank">WhatsApp</a></li><li><a href="mailto:admin@lifjarzstore.id">Email</a></li></ul></div>
+    <div class="footer-col"><h4>Dukungan</h4><ul><li><a href="https://wa.me/6289675622834" target="_blank">WhatsApp</a></li><li><a href="/cdn-cgi/l/email-protection#f796939a9e99b79b9e919d96858d8483988592d99e93">Email</a></li></ul></div>
     <div class="footer-col"><h4>Legalitas</h4><ul><li><a href="#">Syarat & Ketentuan</a></li><li><a href="#">Kebijakan Privasi</a></li></ul></div>
   </div>
   <div class="footer-bottom">
@@ -522,7 +490,7 @@ Kami berkomitmen memberikan pelayanan yang responsif, harga yang ramah, serta pr
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 const API = "https://lifjarzstoreid-production.up.railway.app";
 let allProducts = [];
 let selectedProductId = null;
@@ -532,13 +500,53 @@ let selectedPayment = "QRIS";
 
 // BANNER
 let currentSlide = 0;
-function slideBanner(dir) { currentSlide = (currentSlide + dir + 3) % 3; goSlide(currentSlide); }
+let totalSlides = 0;
+function slideBanner(dir) { if(!totalSlides) return; currentSlide = (currentSlide + dir + totalSlides) % totalSlides; goSlide(currentSlide); }
 function goSlide(n) {
   currentSlide = n;
   document.getElementById('bannerSlider').style.transform = `translateX(-${n*100}%)`;
   document.querySelectorAll('.banner-dot').forEach((d,i) => d.classList.toggle('active', i===n));
 }
 setInterval(() => slideBanner(1), 4500);
+
+async function loadBanners() {
+  const slider = document.getElementById('bannerSlider');
+  const dotsEl = document.getElementById('bannerDots');
+  const fallbackBanners = [
+    { badge:'⚡ Top-Up Terpercaya', title:'Power Up<br>Your Game!', desc:'Top-up diamond, UC, dan item favoritmu. Proses instan!', cta:'Top-Up Sekarang', ctaAction:"openOrderModal()", emoji:'🎮', cls:'slide-1' },
+    { badge:'🔥 Flash Sale Aktif', title:'Harga<br>Termurah!', desc:'Diamond dan UC harga spesial. Penawaran terbatas!', cta:'Lihat Flash Sale', ctaAction:"document.getElementById('flashsale').scrollIntoView({behavior:'smooth'})", emoji:'💎', cls:'slide-2' },
+    { badge:'🛡️ 100% Aman', title:'Transaksi<br>Terjamin!', desc:'QRIS, GoPay, OVO, Dana, Transfer Bank. Aman!', cta:'Order Sekarang', ctaAction:"openOrderModal()", emoji:'🔒', cls:'slide-3' },
+  ];
+  try {
+    const res = await fetch(`${API}/banners`);
+    const banners = await res.json();
+    const active = Array.isArray(banners) ? banners.filter(b => b.is_active == 1 || b.is_active === true) : [];
+    if (active.length > 0) {
+      slider.innerHTML = active.map(b => {
+        const imgUrl = b.image && b.image.startsWith('http') ? b.image : `${API}/uploads/${b.image}`;
+        return `<div class="banner-slide" style="background:linear-gradient(135deg,#1565c0,#6a1b9a);padding:0;overflow:hidden;">
+          <img src="${imgUrl}" alt="banner" style="width:100%;height:100%;object-fit:cover;display:block;"
+            onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#1565c0,#6a1b9a)'">
+        </div>`;
+      }).join('');
+      dotsEl.innerHTML = active.map((_,i) => `<div class="banner-dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
+      totalSlides = active.length;
+      return;
+    }
+  } catch(e) { /* fallback ke banner statis */ }
+  // Fallback: banner statis
+  slider.innerHTML = fallbackBanners.map(b => `<div class="banner-slide ${b.cls}">
+    <div class="slide-content">
+      <div class="slide-badge">${b.badge}</div>
+      <h2>${b.title}</h2>
+      <p>${b.desc}</p>
+      <button class="slide-cta" onclick="${b.ctaAction}">${b.cta}</button>
+    </div>
+    <div class="slide-emoji">${b.emoji}</div>
+  </div>`).join('');
+  dotsEl.innerHTML = fallbackBanners.map((_,i) => `<div class="banner-dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
+  totalSlides = fallbackBanners.length;
+}
 
 // COUNTDOWN
 (function() {
@@ -572,6 +580,7 @@ function getGameImage(gameName) {
 }
 
 async function loadGames() {
+  loadBanners();
   try {
     const [prodRes, fsRes] = await Promise.all([fetch(`${API}/products`), fetch(`${API}/flashsales`)]);
     const products = await prodRes.json();
@@ -824,10 +833,4 @@ loadGames();
 </script>
 
 <button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Kembali ke atas">
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="17 11 12 6 7 11"/>
-    <polyline points="17 18 12 13 7 18"/>
-  </svg>
-</button>
-<script>
-window.addEventLi
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-
