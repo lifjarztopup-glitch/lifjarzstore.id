@@ -703,7 +703,7 @@ async function loadGameCards() {
             const metaProd  = prods.find(p => p.item_name === '__game_meta__');
             const imgProd   = metaProd?.image ? metaProd : prods.find(p => p.image);
             const iconHtml  = imgProd
-                ? `<img src="${imgProd.image && imgProd.image.startsWith('http') ? imgProd.image : API+'/uploads/'+imgProd.image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                ? `<img src="${API}/uploads/${imgProd.image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
                 : `<span>${getGameEmoji(g)}</span>`;
             const currency  = prods.find(p => p.item_name !== '__game_meta__')?.currency || prods[0]?.currency || 'Item';
             const itemCount = prods.filter(p => p.item_name !== '__game_meta__').length;
@@ -779,7 +779,7 @@ function renderItemList(products, gameName) {
                 ${products.map(p => `
                     <tr>
                         <td>${p.image
-                            ? `<img src="${p.image && p.image.startsWith('http') ? p.image : API+'/uploads/'+p.image}" class="prod-img">`
+                            ? `<img src="${API}/uploads/${p.image}" class="prod-img">`
                             : `<div class="prod-emoji">📦</div>`
                         }</td>
                         <td style="font-weight:600;">${p.item_name}</td>
@@ -1267,7 +1267,7 @@ async function loadBanners() {
                             <td style="font-size:11px;">${b.btn_text || '—'}</td>
                             <td><span class="badge ${b.is_active ? 'b-ok' : 'b-no'}">${b.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
                             <td style="display:flex;gap:6px;">
-                                <button class="btn btn-sm btn-edit" onclick="editBanner(${b.id},'${escJs(b.title)}','${escJs(b.subtitle)}','${escJs(b.description)}','${escJs(b.color)}','${escJs(b.emoji)}','${escJs(b.btn_text)}')">Edit</button>
+                                <button class="btn btn-sm btn-edit" onclick="editBanner(${b.id},'${escJs(b.title)}','${escJs(b.subtitle)}','${escJs(b.description)}','${escJs(b.color)}','${escJs(b.emoji)}','${escJs(b.btn_text)}','${escJs(b.image||'')}')">Edit</button>
                                 <button class="btn btn-sm btn-ok" onclick="toggleBanner(${b.id},${b.is_active})">${b.is_active ? 'Nonaktif' : 'Aktif'}kan</button>
                                 <button class="btn btn-sm btn-del" onclick="deleteBanner(${b.id})">Hapus</button>
                             </td>
@@ -1282,7 +1282,7 @@ async function loadBanners() {
 
 function escJs(str) { return (str||'').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
 
-function editBanner(id, title, subtitle, desc, color, emoji, btn) {
+function editBanner(id, title, subtitle, desc, color, emoji, btn, image) {
     document.getElementById('bn-editing-id').value = id;
     document.getElementById('bn-title').value = title;
     document.getElementById('bn-subtitle').value = subtitle;
@@ -1290,6 +1290,7 @@ function editBanner(id, title, subtitle, desc, color, emoji, btn) {
     document.getElementById('bn-color').value = color;
     document.getElementById('bn-emoji').value = emoji;
     document.getElementById('bn-btn').value = btn;
+    document.getElementById('bn-media-filename').value = image || '';
     document.getElementById('bn-save-btn').textContent = '💾 Simpan';
     window.scrollTo({top:0,behavior:'smooth'});
 }
