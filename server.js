@@ -14,7 +14,12 @@ const SECRET_KEY = "lifjarz_super_secret_key";
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 const SUPABASE_BUCKET = "uploads";
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+// Lazy init: jangan crash kalau env belum di-set
+let supabase = null;
+function getSupabase() {
+    if (!supabase) supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    return supabase;
+}
 
 const app = express();
 app.use(cors());
@@ -85,7 +90,8 @@ app.post("/upload", verifyToken, upload.single("image"), async (req, res) => {
     const ext = path.extname(req.file.originalname);
     const filename = "product-" + Date.now() + ext;
 
-    const { error } = await supabase.storage
+    const sb = getSupabase();
+    const { error } = await sb.storage
         .from(SUPABASE_BUCKET)
         .upload(filename, req.file.buffer, {
             contentType: req.file.mimetype,
@@ -97,7 +103,7 @@ app.post("/upload", verifyToken, upload.single("image"), async (req, res) => {
         return res.status(500).json({ message: "Gagal upload ke storage" });
     }
 
-    const { data } = supabase.storage.from(SUPABASE_BUCKET).getPublicUrl(filename);
+    const { data } = sb.storage.from(SUPABASE_BUCKET).getPublicUrl(filename);
     // Return full public URL agar bisa disimpan langsung ke DB
     res.json({ filename: data.publicUrl, url: data.publicUrl });
 });
