@@ -506,6 +506,11 @@
 
 <script>
 const API = '';
+// Helper: handle both full Supabase URLs and legacy relative paths
+function imgUrl(img) {
+    if (!img) return '';
+    return (img.startsWith('http://') || img.startsWith('https://')) ? img : `${API}/uploads/${img}`;
+}
 let token = localStorage.getItem('admin_token');
 let selectedGameName = null;
 let editingTrxId = null;
@@ -703,7 +708,7 @@ async function loadGameCards() {
             const metaProd  = prods.find(p => p.item_name === '__game_meta__');
             const imgProd   = metaProd?.image ? metaProd : prods.find(p => p.image);
             const iconHtml  = imgProd
-                ? `<img src="${API}/uploads/${imgProd.image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                ? `<img src="${imgUrl(imgProd.image)}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
                 : `<span>${getGameEmoji(g)}</span>`;
             const currency  = prods.find(p => p.item_name !== '__game_meta__')?.currency || prods[0]?.currency || 'Item';
             const itemCount = prods.filter(p => p.item_name !== '__game_meta__').length;
@@ -779,7 +784,7 @@ function renderItemList(products, gameName) {
                 ${products.map(p => `
                     <tr>
                         <td>${p.image
-                            ? `<img src="${API}/uploads/${p.image}" class="prod-img">`
+                            ? `<img src="${imgUrl(p.image)}" class="prod-img">`
                             : `<div class="prod-emoji">📦</div>`
                         }</td>
                         <td style="font-weight:600;">${p.item_name}</td>
@@ -1258,7 +1263,10 @@ async function loadBanners() {
                         <tr>
                             <td>
                                 <div style="width:90px;height:50px;border-radius:8px;background:${b.color};display:flex;align-items:center;justify-content:center;font-size:1.5rem;overflow:hidden;">
-                                    ${b.emoji || '🎮'}
+                                    ${b.image
+                                        ? `<img src="${imgUrl(b.image)}" style="width:100%;height:100%;object-fit:cover;">`
+                                        : (b.emoji || '🎮')
+                                    }
                                 </div>
                             </td>
                             <td style="font-weight:600;">${b.title}</td>
