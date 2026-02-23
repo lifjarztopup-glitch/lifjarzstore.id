@@ -703,7 +703,7 @@ async function loadGameCards() {
             const metaProd  = prods.find(p => p.item_name === '__game_meta__');
             const imgProd   = metaProd?.image ? metaProd : prods.find(p => p.image);
             const iconHtml  = imgProd
-                ? `<img src="${API}/uploads/${imgProd.image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                ? `<img src="${imgProd.image && imgProd.image.startsWith('http') ? imgProd.image : API+'/uploads/'+imgProd.image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
                 : `<span>${getGameEmoji(g)}</span>`;
             const currency  = prods.find(p => p.item_name !== '__game_meta__')?.currency || prods[0]?.currency || 'Item';
             const itemCount = prods.filter(p => p.item_name !== '__game_meta__').length;
@@ -779,7 +779,7 @@ function renderItemList(products, gameName) {
                 ${products.map(p => `
                     <tr>
                         <td>${p.image
-                            ? `<img src="${API}/uploads/${p.image}" class="prod-img">`
+                            ? `<img src="${p.image && p.image.startsWith('http') ? p.image : API+'/uploads/'+p.image}" class="prod-img">`
                             : `<div class="prod-emoji">📦</div>`
                         }</td>
                         <td style="font-weight:600;">${p.item_name}</td>
