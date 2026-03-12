@@ -375,42 +375,10 @@ body.dark .pay-opt:hover,body.dark .pay-opt.active{border-color:#1a8fe3;color:#5
   <div class="main">
     <!-- HERO BANNER -->
     <div class="hero">
-      <div class="banner-slider" id="bannerSlider">
-        <div class="banner-slide slide-1">
-          <div class="slide-content">
-            <div class="slide-badge">⚡ Top-Up Terpercaya</div>
-            <h2>Power Up<br>Your Game!</h2>
-            <p>Top-up diamond, UC, dan item favoritmu. Proses instan!</p>
-            <button class="slide-cta" onclick="openOrderModal()">Top-Up Sekarang</button>
-          </div>
-          <div class="slide-emoji">🎮</div>
-        </div>
-        <div class="banner-slide slide-2">
-          <div class="slide-content">
-            <div class="slide-badge">🔥 Flash Sale Aktif</div>
-            <h2>Harga<br>Termurah!</h2>
-            <p>Diamond dan UC harga spesial. Penawaran terbatas!</p>
-            <button class="slide-cta" onclick="document.getElementById('flashsale').scrollIntoView({behavior:'smooth'})">Lihat Flash Sale</button>
-          </div>
-          <div class="slide-emoji">💎</div>
-        </div>
-        <div class="banner-slide slide-3">
-          <div class="slide-content">
-            <div class="slide-badge">🛡️ 100% Aman</div>
-            <h2>Transaksi<br>Terjamin!</h2>
-            <p>QRIS, GoPay, OVO, Dana, Transfer Bank. Aman!</p>
-            <button class="slide-cta" onclick="openOrderModal()">Order Sekarang</button>
-          </div>
-          <div class="slide-emoji">🔒</div>
-        </div>
-      </div>
+      <div class="banner-slider" id="bannerSlider"></div>
       <button class="banner-arrow left" onclick="slideBanner(-1)">‹</button>
       <button class="banner-arrow right" onclick="slideBanner(1)">›</button>
-      <div class="banner-dots" id="bannerDots">
-        <div class="banner-dot active" onclick="goSlide(0)"></div>
-        <div class="banner-dot" onclick="goSlide(1)"></div>
-        <div class="banner-dot" onclick="goSlide(2)"></div>
-      </div>
+      <div class="banner-dots" id="bannerDots"></div>
     </div>
 
     <!-- INFO CHIPS -->
@@ -708,13 +676,50 @@ let selectedPayment = "QRIS";
 
 // BANNER
 let currentSlide = 0;
-function slideBanner(dir) { currentSlide = (currentSlide + dir + 3) % 3; goSlide(currentSlide); }
+let totalSlides = 3;
+function slideBanner(dir) { currentSlide = (currentSlide + dir + totalSlides) % totalSlides; goSlide(currentSlide); }
 function goSlide(n) {
   currentSlide = n;
   document.getElementById('bannerSlider').style.transform = `translateX(-${n*100}%)`;
   document.querySelectorAll('.banner-dot').forEach((d,i) => d.classList.toggle('active', i===n));
 }
 setInterval(() => slideBanner(1), 4500);
+
+const defaultBanners = [
+  { title: 'Power Up<br>Your Game!', subtitle: '⚡ Top-Up Terpercaya', description: 'Top-up diamond, UC, dan item favoritmu. Proses instan!', color: 'linear-gradient(135deg,#1565c0,#6a1b9a)', emoji: '🎮', btn_text: 'Top-Up Sekarang', btn_action: "openOrderModal()" },
+  { title: 'Harga<br>Termurah!', subtitle: '🔥 Flash Sale Aktif', description: 'Diamond dan UC harga spesial. Penawaran terbatas!', color: 'linear-gradient(135deg,#b71c1c,#880e4f)', emoji: '💎', btn_text: 'Lihat Flash Sale', btn_action: "document.getElementById('flashsale').scrollIntoView({behavior:'smooth'})" },
+  { title: 'Transaksi<br>Terjamin!', subtitle: '🛡️ 100% Aman', description: 'QRIS, GoPay, OVO, Dana, Transfer Bank. Aman!', color: 'linear-gradient(135deg,#00695c,#0d47a1)', emoji: '🔒', btn_text: 'Order Sekarang', btn_action: "openOrderModal()" }
+];
+
+function renderBanners(banners) {
+  totalSlides = banners.length;
+  currentSlide = 0;
+  const slider = document.getElementById('bannerSlider');
+  const dots = document.getElementById('bannerDots');
+  slider.innerHTML = banners.map((b, i) => `
+    <div class="banner-slide" style="background:${b.color||'linear-gradient(135deg,#1565c0,#6a1b9a)'};min-width:100%;height:100%;display:flex;align-items:center;padding:24px 28px;position:relative;overflow:hidden;">
+      ${b.image ? `<img src="${imgUrl(b.image)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.35;">` : ''}
+      <div class="slide-content" style="position:relative;z-index:1;">
+        ${b.subtitle ? `<div class="slide-badge">${b.subtitle}</div>` : ''}
+        <h2>${b.title}</h2>
+        ${b.description ? `<p>${b.description}</p>` : ''}
+        ${b.btn_text ? `<button class="slide-cta" onclick="${b.btn_action||'openOrderModal()'}">${b.btn_text}</button>` : ''}
+      </div>
+      <div class="slide-emoji" style="position:absolute;right:26px;top:50%;transform:translateY(-50%);font-size:6rem;opacity:0.13;pointer-events:none;">${b.emoji||'🎮'}</div>
+    </div>`).join('');
+  dots.innerHTML = banners.map((_, i) => `<div class="banner-dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
+}
+
+async function loadBanners() {
+  try {
+    const res = await fetch(`${API}/banners`);
+    const data = await res.json();
+    const active = data.filter(b => b.is_active);
+    renderBanners(active.length ? active : defaultBanners);
+  } catch(e) {
+    renderBanners(defaultBanners);
+  }
+}
 
 // COUNTDOWN
 (function() {
@@ -743,11 +748,15 @@ function getGameGradient(g) {
   const m={'Mobile Legends':'linear-gradient(135deg,#1565c0,#6a1b9a)','Free Fire':'linear-gradient(135deg,#b71c1c,#e65100)','PUBG Mobile':'linear-gradient(135deg,#33691e,#f57f17)','Genshin Impact':'linear-gradient(135deg,#0d47a1,#1565c0)','Roblox':'linear-gradient(135deg,#e53935,#880e4f)'};
   return m[g]||'linear-gradient(135deg,#1565c0,#7b1fa2)';
 }
+function imgUrl(img) {
+  if (!img) return null;
+  return (img.startsWith('http://') || img.startsWith('https://')) ? img : `${API}/uploads/${img}`;
+}
 function getGameImage(gameName) {
   const meta = (window._metaProds||[]).find(p=>p.game_name===gameName&&p.image);
-  if (meta) return `${API}/uploads/${meta.image}`;
+  if (meta) return imgUrl(meta.image);
   const from = allProducts.find(p=>p.game_name===gameName&&p.image);
-  if (from) return `${API}/uploads/${from.image}`;
+  if (from) return imgUrl(from.image);
   return null;
 }
 
@@ -1021,6 +1030,7 @@ function setTheme(mode) {
   if(saved === 'dark') setTheme('dark');
 })();
 
+loadBanners();
 loadGames();
 </script>
 
