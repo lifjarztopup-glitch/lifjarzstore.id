@@ -62,6 +62,20 @@ nav{background:#fff;padding:0 24px;height:60px;display:flex;align-items:center;j
 .info-chip{flex:1;background:#fff;border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:9px;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
 .chip-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;}
 .chip-icon.blue{background:#dbeeff;}.chip-icon.green{background:#dcfce7;}.chip-icon.purple{background:#f3e8ff;}.chip-icon.yellow{background:#fef9c3;}
+.chip-icon-rotate{position:relative;overflow:hidden;}
+.ci-svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);opacity:0;font-size:1.1rem;line-height:1;}
+.ci-svg.ci-show{animation:iconPopIn 0.42s cubic-bezier(0.34,1.72,0.64,1) forwards;}
+.ci-svg.ci-out{animation:iconPopOut 0.22s cubic-bezier(0.4,0,1,1) forwards;}
+@keyframes iconPopIn{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:0;}
+  60%{transform:translate(-50%,-50%) scale(1.3);opacity:1;}
+  80%{transform:translate(-50%,-50%) scale(0.88);}
+  100%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+}
+@keyframes iconPopOut{
+  0%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(0);opacity:0;}
+}
 .chip-text strong{display:block;font-size:0.72rem;font-weight:800;color:#1a1a1a;}
 .chip-text span{font-size:0.62rem;color:#888;}
 /* SEARCH */
@@ -73,6 +87,7 @@ nav{background:#fff;padding:0 24px;height:60px;display:flex;align-items:center;j
 .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .card-title{font-family:'Poppins',sans-serif;font-size:0.9rem;font-weight:900;color:#1a1a1a;display:flex;align-items:center;gap:7px;}
 .card-title::before{content:'';display:block;width:4px;height:16px;background:linear-gradient(180deg,#1a8fe3,#7c3aed);border-radius:2px;}
+.card-title.card-title-icon::before{display:none;}
 .see-all{font-size:0.68rem;font-weight:800;color:#1a8fe3;cursor:pointer;}
 /* FLASH SALE */
 .flash-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
@@ -96,6 +111,9 @@ nav{background:#fff;padding:0 24px;height:60px;display:flex;align-items:center;j
 .game-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px;}
 .game-tab{font-size:0.68rem;font-weight:700;padding:5px 12px;background:#f0f4ff;color:#667;border:none;border-radius:100px;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;}
 .game-tab:hover,.game-tab.active{background:#1a8fe3;color:#fff;}
+.flash-progress-wrap{width:100%;height:7px;background:#fee2e2;border-radius:100px;margin-bottom:12px;overflow:hidden;}
+.flash-progress-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,#ff6b35,#e53935,#ff1744);background-size:200% 100%;animation:progressShimmer 1.5s linear infinite;transition:width 1s linear;}
+@keyframes progressShimmer{0%{background-position:100% 0}100%{background-position:-100% 0}}
 /* GAME GRID */
 .games-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;}
 .game-card{border-radius:11px;overflow:hidden;cursor:pointer;transition:all 0.25s;opacity:0;transform:translateY(10px);border:2px solid transparent;}
@@ -156,7 +174,11 @@ footer{background:#12172e;padding:32px 22px 18px;margin-top:0;}
 .order-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
 .order-overlay.show{display:flex;}
 .order-modal{background:#fff;border-radius:20px;max-width:490px;width:95%;max-height:92vh;overflow-y:auto;animation:modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+.order-modal.closing{animation:modalOut 0.25s cubic-bezier(0.4,0,1,1) forwards;}
+.order-overlay.closing{animation:overlayOut 0.25s ease forwards;}
 @keyframes modalIn{from{transform:scale(0.92);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes modalOut{from{transform:scale(1);opacity:1}to{transform:scale(0.9);opacity:0}}
+@keyframes overlayOut{from{opacity:1}to{opacity:0}}
 .modal-hd{background:linear-gradient(135deg,#1a8fe3,#7c3aed);padding:18px 22px;border-radius:20px 20px 0 0;position:relative;}
 .modal-hd h3{font-family:'Poppins',sans-serif;font-size:1rem;font-weight:800;color:#fff;}
 .modal-hd p{font-size:0.72rem;color:rgba(255,255,255,0.7);margin-top:2px;}
@@ -236,10 +258,10 @@ body.dark .game-tab{background:#1a2040;color:#778;}
 body.dark .game-tab:hover,.game-tab.active{background:#1a8fe3;color:#fff;}
 body.dark .trx-inner h3{color:#e0e6f0;}
 body.dark .trx-inner>p{color:#556;}
-body.dark input,body.dark select{background:#1a2040;border-color:#252d50;color:#e0e6f0;}
+body.dark input,body.dark select{background:#1a2040;border-color:#252d50;color:#ffffff;}
 body.dark input:focus,body.dark select:focus{border-color:#1a8fe3;background:#1e2848;}
-body.dark input::placeholder{color:#334;}
-body.dark select option{background:#1a2040;color:#e0e6f0;}
+body.dark input::placeholder{color:#7788aa;}
+body.dark select option{background:#1a2040;color:#ffffff;}
 body.dark .nominal-btn{background:#1a2040;border-color:#252d50;color:#b0bcd8;}
 body.dark .nominal-btn:hover,.nominal-btn.active{border-color:#1a8fe3;background:#0d2240;color:#1a8fe3;}
 body.dark .pay-btn{background:#1a2040;border-color:#252d50;color:#778;}
@@ -254,10 +276,56 @@ body.dark .trx-result.error{background:#200a0a;border-color:#7f1d1d;}
 body.dark .trx-detail p{color:#b0bcd8;}
 body.dark .trx-detail strong{color:#5ab8ff;}
 
-/* SCROLL TO TOP */
-#scrollTop{position:fixed;bottom:28px;right:24px;z-index:400;width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(34,197,94,0.4);opacity:0;transform:translateY(20px);transition:opacity 0.3s,transform 0.3s;pointer-events:none;}
+/* FIRE ICON */
+.fire-icon{
+  font-size:1.25rem;
+  display:inline-block;
+  animation:fireFlicker 0.6s ease-in-out infinite alternate;
+  transform-origin:bottom center;
+  filter:drop-shadow(0 0 4px rgba(251,146,60,0.8));
+}
+@keyframes fireFlicker{
+  0%  {transform:scaleY(1)   scaleX(1)    rotate(-3deg);filter:drop-shadow(0 0 3px rgba(251,146,60,0.7));}
+  25% {transform:scaleY(1.1) scaleX(0.93) rotate(2deg); filter:drop-shadow(0 0 7px rgba(239,68,68,0.9));}
+  50% {transform:scaleY(0.95)scaleX(1.05) rotate(-2deg);filter:drop-shadow(0 0 5px rgba(251,191,36,1));}
+  75% {transform:scaleY(1.12)scaleX(0.95) rotate(3deg); filter:drop-shadow(0 0 8px rgba(239,68,68,0.8));}
+  100%{transform:scaleY(1.05)scaleX(1)    rotate(-1deg);filter:drop-shadow(0 0 4px rgba(251,146,60,0.6));}
+}
+#waFloat{position:fixed;bottom:28px;right:24px;z-index:400;width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#25d366,#128c4e);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,211,102,0.45);text-decoration:none;transition:transform 0.2s,box-shadow 0.2s;}
+#waFloat:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(37,211,102,0.55);}
+#scrollTop{position:fixed;bottom:82px;right:24px;z-index:400;width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(34,197,94,0.4);opacity:0;transform:translateY(20px);transition:opacity 0.3s,transform 0.3s;pointer-events:none;}
 #scrollTop.show{opacity:1;transform:translateY(0);pointer-events:all;}
 #scrollTop:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(34,197,94,0.5);}
+
+body.dark .legal-body{color:#e0e6f0;}
+body.dark .legal-body strong{color:#5ab8ff !important;}
+body.dark .legal-body div{border-bottom-color:#1e2a40 !important;}
+body.dark #skOverlay .order-modal,body.dark #ppOverlay .order-modal{background:#161b2e;}
+.legal-body{color:#333;}
+
+/* FORM STEPS */
+.step-label{display:flex;align-items:center;gap:8px;margin-bottom:8px;margin-top:4px;}
+.step-num{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#1a8fe3,#7c3aed);color:#fff;font-size:0.65rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-label span{font-size:0.62rem;font-weight:800;color:#666;text-transform:uppercase;letter-spacing:1px;}
+body.dark .step-label span{color:#778;}
+.step-block{margin-bottom:14px;}
+
+/* PAYMENT ACCORDION */
+.pay-groups{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
+.pay-group-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-radius:10px;border:1.5px solid #e8eeff;background:#f5f7ff;cursor:pointer;font-size:0.78rem;font-weight:800;color:#444;font-family:'Poppins',sans-serif;user-select:none;transition:all 0.2s;}
+.pay-group-hd:hover{border-color:#1a8fe3;color:#1a8fe3;}
+.pay-group-hd .pg-left{display:flex;align-items:center;gap:8px;}
+.pay-group-hd .pg-arrow{font-size:0.7rem;transition:transform 0.2s;}
+.pay-group-hd.open{border-color:#1a8fe3;color:#1a8fe3;background:#e8f4ff;}
+.pay-group-hd.open .pg-arrow{transform:rotate(180deg);}
+.pay-group-body{display:none;flex-wrap:wrap;gap:6px;padding:10px 4px 4px 4px;}
+.pay-group-body.show{display:flex;}
+.pay-opt{font-size:0.68rem;font-weight:700;padding:7px 11px;background:#f5f7ff;color:#555;border:2px solid #e8eeff;border-radius:8px;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;}
+.pay-opt:hover,.pay-opt.active{border-color:#1a8fe3;color:#1a8fe3;background:#e8f4ff;}
+body.dark .pay-group-hd{background:#1a2040;border-color:#252d50;color:#99a;}
+body.dark .pay-group-hd:hover,body.dark .pay-group-hd.open{border-color:#1a8fe3;color:#5ab8ff;background:#0d2240;}
+body.dark .pay-opt{background:#1a2040;border-color:#252d50;color:#99a;}
+body.dark .pay-opt:hover,body.dark .pay-opt.active{border-color:#1a8fe3;color:#5ab8ff;background:#0d2240;}
 </style>
 </head>
 <body>
@@ -291,7 +359,7 @@ body.dark .trx-detail strong{color:#5ab8ff;}
       <div class="sb-icon">🏠</div><div class="sb-label">Home</div>
     </div>
     <div class="sb-item" onclick="document.getElementById('flashsale').scrollIntoView({behavior:'smooth'})">
-      <div class="sb-icon">⚡</div><div class="sb-label">Flash</div>
+      <div class="sb-icon">🔥</div><div class="sb-label">Flash</div>
     </div>
     <div class="sb-item" onclick="document.getElementById('games').scrollIntoView({behavior:'smooth'})">
       <div class="sb-icon">🎮</div><div class="sb-label">Game</div>
@@ -300,41 +368,114 @@ body.dark .trx-detail strong{color:#5ab8ff;}
       <div class="sb-icon">💎</div><div class="sb-label">Top-Up</div>
     </div>
     <div class="sb-item" onclick="document.getElementById('cek').scrollIntoView({behavior:'smooth'})">
-      <div class="sb-icon">🔍</div><div class="sb-label">Cek Trx</div>
+      <div class="sb-icon">🧾</div><div class="sb-label">Cek Trx</div>
     </div>
   </aside>
 
   <div class="main">
     <!-- HERO BANNER -->
     <div class="hero">
-      <div class="banner-slider" id="bannerSlider"></div>
+      <div class="banner-slider" id="bannerSlider">
+        <div class="banner-slide slide-1">
+          <div class="slide-content">
+            <div class="slide-badge">⚡ Top-Up Terpercaya</div>
+            <h2>Power Up<br>Your Game!</h2>
+            <p>Top-up diamond, UC, dan item favoritmu. Proses instan!</p>
+            <button class="slide-cta" onclick="openOrderModal()">Top-Up Sekarang</button>
+          </div>
+          <div class="slide-emoji">🎮</div>
+        </div>
+        <div class="banner-slide slide-2">
+          <div class="slide-content">
+            <div class="slide-badge">🔥 Flash Sale Aktif</div>
+            <h2>Harga<br>Termurah!</h2>
+            <p>Diamond dan UC harga spesial. Penawaran terbatas!</p>
+            <button class="slide-cta" onclick="document.getElementById('flashsale').scrollIntoView({behavior:'smooth'})">Lihat Flash Sale</button>
+          </div>
+          <div class="slide-emoji">💎</div>
+        </div>
+        <div class="banner-slide slide-3">
+          <div class="slide-content">
+            <div class="slide-badge">🛡️ 100% Aman</div>
+            <h2>Transaksi<br>Terjamin!</h2>
+            <p>QRIS, GoPay, OVO, Dana, Transfer Bank. Aman!</p>
+            <button class="slide-cta" onclick="openOrderModal()">Order Sekarang</button>
+          </div>
+          <div class="slide-emoji">🔒</div>
+        </div>
+      </div>
       <button class="banner-arrow left" onclick="slideBanner(-1)">‹</button>
       <button class="banner-arrow right" onclick="slideBanner(1)">›</button>
-      <div class="banner-dots" id="bannerDots"></div>
+      <div class="banner-dots" id="bannerDots">
+        <div class="banner-dot active" onclick="goSlide(0)"></div>
+        <div class="banner-dot" onclick="goSlide(1)"></div>
+        <div class="banner-dot" onclick="goSlide(2)"></div>
+      </div>
     </div>
 
     <!-- INFO CHIPS -->
     <div class="info-bar">
-      <div class="info-chip"><div class="chip-icon blue">⚡</div><div class="chip-text"><strong>Proses Instan</strong><span>Otomatis masuk ke akun</span></div></div>
-      <div class="info-chip"><div class="chip-icon green">🛡️</div><div class="chip-text"><strong>100% Aman</strong><span>Transaksi terjamin aman</span></div></div>
-      <div class="info-chip"><div class="chip-icon purple">💰</div><div class="chip-text"><strong>Harga Termurah</strong><span>Dijamin harga terbaik</span></div></div>
-      <div class="info-chip"><div class="chip-icon yellow">🎧</div><div class="chip-text"><strong>CS 24 Jam</strong><span>Siap bantu kapan saja</span></div></div>
+      <!-- Chip 1: Proses Instan -->
+      <div class="info-chip">
+        <div class="chip-icon blue chip-icon-rotate" id="chip0">
+          <span class="ci-svg ci-show">⚡</span>
+          <span class="ci-svg">⏱️</span>
+          <span class="ci-svg">🔄</span>
+          <span class="ci-svg">🚀</span>
+        </div>
+        <div class="chip-text"><strong>Proses Instan</strong><span>Otomatis masuk ke akun</span></div>
+      </div>
+      <!-- Chip 2: 100% Aman -->
+      <div class="info-chip">
+        <div class="chip-icon green chip-icon-rotate" id="chip1">
+          <span class="ci-svg ci-show">🛡️</span>
+          <span class="ci-svg">🔒</span>
+          <span class="ci-svg">✅</span>
+          <span class="ci-svg">💯</span>
+        </div>
+        <div class="chip-text"><strong>100% Aman</strong><span>Transaksi terjamin aman</span></div>
+      </div>
+      <!-- Chip 3: Harga Termurah -->
+      <div class="info-chip">
+        <div class="chip-icon purple chip-icon-rotate" id="chip2">
+          <span class="ci-svg ci-show">💰</span>
+          <span class="ci-svg">🏷️</span>
+          <span class="ci-svg">⭐</span>
+          <span class="ci-svg">🎁</span>
+        </div>
+        <div class="chip-text"><strong>Harga Termurah</strong><span>Dijamin harga terbaik</span></div>
+      </div>
+      <!-- Chip 4: CS 24 Jam -->
+      <div class="info-chip">
+        <div class="chip-icon yellow chip-icon-rotate" id="chip3">
+          <span class="ci-svg ci-show">🎧</span>
+          <span class="ci-svg">📞</span>
+          <span class="ci-svg">💬</span>
+          <span class="ci-svg">🕐</span>
+        </div>
+        <div class="chip-text"><strong>CS 24 Jam</strong><span>Siap bantu kapan saja</span></div>
+      </div>
     </div>
 
     <!-- FLASH SALE -->
     <div class="card" id="flashsale">
       <div class="flash-row">
         <div class="flash-title-wrap">
-          <span style="font-size:1.15rem">⚡</span>
+          <span class="fire-icon">🔥</span>
           <h3>FLASH SALE</h3>
         </div>
-        <div class="flash-cd">
-          <span class="cd-lbl">Sisa:</span>
-          <div class="cd-box" id="cd-h">08</div>
-          <span class="cd-sep">:</span>
-          <div class="cd-box" id="cd-m">00</div>
-          <span class="cd-sep">:</span>
-          <div class="cd-box" id="cd-s">00</div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
+          <div class="flash-cd">
+            <span class="cd-lbl">Sisa:</span>
+            <div class="cd-box" id="cd-h">08</div>
+            <span class="cd-sep">:</span>
+            <div class="cd-box" id="cd-m">00</div>
+            <span class="cd-sep">:</span>
+            <div class="cd-box" id="cd-s">00</div>
+          </div>
+          <div class="flash-progress-wrap" style="margin-bottom:0;">
+            <div class="flash-progress-bar" id="flash-progress-bar" style="width:100%;"></div>
+          </div>
         </div>
       </div>
       <div class="flash-grid" id="flash-items">
@@ -349,7 +490,10 @@ body.dark .trx-detail strong{color:#5ab8ff;}
     <!-- TRENDING GAMES -->
     <div class="card" id="games">
       <div class="card-head">
-        <div class="card-title">TRENDING GAMES</div>
+        <div class="card-title card-title-icon">
+          <span style="font-size:1.1rem">🎮</span>
+          TRENDING GAMES
+        </div>
         <span class="see-all">Lihat Semua →</span>
       </div>
       <div class="game-tabs" id="game-tabs">
@@ -368,7 +512,10 @@ body.dark .trx-detail strong{color:#5ab8ff;}
     <!-- CEK TRANSAKSI -->
     <div class="card" id="cek">
       <div class="card-head" style="margin-bottom:14px">
-        <div class="card-title">CEK TRANSAKSI</div>
+        <div class="card-title card-title-icon">
+          <span style="font-size:1.1rem">🧾</span>
+          CEK TRANSAKSI
+        </div>
       </div>
       <div class="trx-inner">
         <h3>🔍 Cek Status Pesanan</h3>
@@ -423,13 +570,13 @@ body.dark .trx-detail strong{color:#5ab8ff;}
 <footer>
   <div class="footer-grid">
     <div class="footer-brand">
-      <div class="footer-logo">⚡ LIFJARZSTORE.ID</div>
-      <p>Platform toko digital yang menyediakan berbagai kebutuhan Fish It Roblox, serta berbagai Layanan Topup Game dengan proses cepat dan aman.<br><br>
-Kami berkomitmen memberikan pelayanan yang responsif, harga yang ramah, serta proses transaksi yang jelas tanpa ribet.</p>
+      <div class="footer-logo">⚡ LIFJARZSTORE.ID <span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;background:#1a8fe3;border-radius:50%;margin-left:3px;vertical-align:middle;" title="Verified"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="2,5 4,7.5 8,3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+      <p>Platform toko digital yang menyediakan berbagai kebutuhan. Mulai dari Fish It Roblox, serta berbagai Layanan Topup Game Mobile Legend, Free Fire, DLL. Dengan proses cepat, aman dan amanah pastinya!.<br><br>
+Kami berkomitmen memberikan pelayanan yang responsif, harga yang ramah, serta proses transaksi yang jelas satset tanpa ribet.</p>
     </div>
     <div class="footer-col"><h4>Navigasi</h4><ul><li><a href="#">Beranda</a></li><li><a href="#games">Daftar Game</a></li><li><a href="#flashsale">Flash Sale</a></li><li><a href="#cek">Cek Transaksi</a></li></ul></div>
-    <div class="footer-col"><h4>Dukungan</h4><ul><li><a href="https://wa.me/6289675622834" target="_blank">WhatsApp</a></li><li><a href="/cdn-cgi/l/email-protection#f796939a9e99b79b9e919d96858d8483988592d99e93">Email</a></li></ul></div>
-    <div class="footer-col"><h4>Legalitas</h4><ul><li><a href="#">Syarat & Ketentuan</a></li><li><a href="#">Kebijakan Privasi</a></li></ul></div>
+    <div class="footer-col"><h4>Dukungan</h4><ul><li><a href="https://wa.me/6289675622834" target="_blank">WhatsApp</a></li><li><a href="/cdn-cgi/l/email-protection#e4969d9d8988d5ddd7d7d5dda48389858d88ca878b89">Email</a></li></ul></div>
+    <div class="footer-col"><h4>Legalitas</h4><ul><li><a href="#" onclick="openLegalModal('sk');return false;">Syarat &amp; Ketentuan</a></li><li><a href="#" onclick="openLegalModal('pp');return false;">Kebijakan Privasi</a></li></ul></div>
   </div>
   <div class="footer-bottom">
     <span>© 2025 LIFJARZSTORE.ID || All rights reserved.</span>
@@ -440,50 +587,111 @@ Kami berkomitmen memberikan pelayanan yang responsif, harga yang ramah, serta pr
 <div class="order-overlay" id="orderOverlay" onclick="closeOrderIfOutside(event)">
   <div class="order-modal">
     <div class="modal-hd">
-      <h3>⚡ Form Top-Up</h3>
+      <h3>📋 Form Top-Up</h3>
       <p>Isi data akun game kamu dengan benar</p>
       <button class="modal-close" onclick="closeOrderModal()">✕</button>
     </div>
     <div class="modal-bd">
-      <div class="form-row">
-        <div class="form-group" style="margin-bottom:0">
-          <label>Pilih Game</label>
-          <select id="order-game" onchange="loadNominals()"><option value="">-- Pilih Game --</option></select>
+      <!-- STEP 1 -->
+      <div class="step-block">
+        <div class="step-label"><div class="step-num">1</div><span>Pilih Game</span></div>
+        <select id="order-game" onchange="loadNominals()"><option value="">-- Pilih Game --</option></select>
+      </div>
+      <!-- STEP 2 -->
+      <div class="step-block">
+        <div class="step-label"><div class="step-num">2</div><span>User ID &amp; Zone ID</span></div>
+        <div class="form-row" style="margin-bottom:0">
+          <input type="text" id="order-userid" placeholder="User ID / Player ID"/>
+          <input type="text" id="order-zoneid" placeholder="Zone ID (jika diperlukan)"/>
         </div>
-        <div class="form-group" style="margin-bottom:0">
-          <label>User ID / Player ID</label>
-          <input type="text" id="order-userid" placeholder="Masukkan User ID"/>
+      </div>
+      <!-- STEP 3 -->
+      <div class="step-block">
+        <div class="step-label"><div class="step-num">3</div><span>Pilih Nominal</span></div>
+        <div class="nominal-grid" id="nominal-grid">
+          <div style="grid-column:1/-1;text-align:center;color:#bbb;padding:14px;font-size:.8rem">Pilih game terlebih dahulu</div>
         </div>
       </div>
-      <div class="form-group">
-        <label>Zone ID (jika diperlukan)</label>
-        <input type="text" id="order-zoneid" placeholder="Contoh: 1234"/>
-      </div>
-      <div class="form-group"><label>Pilih Nominal</label></div>
-      <div class="nominal-grid" id="nominal-grid">
-        <div style="grid-column:1/-1;text-align:center;color:#bbb;padding:14px;font-size:.8rem">Pilih game terlebih dahulu</div>
-      </div>
-      <div class="form-group">
-        <label>Kode Promo (opsional)</label>
+      <!-- STEP 4 -->
+      <div class="step-block">
+        <div class="step-label"><div class="step-num">4</div><span>Kode Promo (Opsional)</span></div>
         <div class="promo-row">
           <input type="text" id="promo-input" placeholder="Masukkan kode promo" style="text-transform:uppercase"/>
           <button class="btn-promo" onclick="checkPromo()">Pakai</button>
         </div>
         <div class="promo-info" id="promo-info"></div>
       </div>
-      <div class="form-group"><label>Metode Pembayaran</label></div>
-      <div class="payment-methods">
-        <button class="pay-btn active" onclick="selectPay(this)">💳 QRIS</button>
-        <button class="pay-btn" onclick="selectPay(this)">🏦 Transfer Bank</button>
-        <button class="pay-btn" onclick="selectPay(this)">💚 GoPay</button>
-        <button class="pay-btn" onclick="selectPay(this)">💜 OVO</button>
-        <button class="pay-btn" onclick="selectPay(this)">🔵 Dana</button>
+      <!-- STEP 5 -->
+      <div class="step-block">
+        <div class="step-label"><div class="step-num">5</div><span>Metode Pembayaran</span></div>
+        <div class="pay-groups" id="payGroups">
+          <!-- QRIS -->
+          <div>
+            <div class="pay-group-hd open" onclick="togglePayGroup(this)">
+              <div class="pg-left">💳 QRIS</div><span class="pg-arrow">▼</span>
+            </div>
+            <div class="pay-group-body show">
+              <button class="pay-opt active" onclick="selectPayOpt(this)">All Payment</button>
+            </div>
+          </div>
+          <!-- E-Wallet -->
+          <div>
+            <div class="pay-group-hd" onclick="togglePayGroup(this)">
+              <div class="pg-left">📱 E-Wallet</div><span class="pg-arrow">▼</span>
+            </div>
+            <div class="pay-group-body">
+              <button class="pay-opt" onclick="selectPayOpt(this)">GoPay</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">OVO</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">Dana</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">ShopeePay</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">LinkAja</button>
+            </div>
+          </div>
+          <!-- Virtual Account -->
+          <div>
+            <div class="pay-group-hd" onclick="togglePayGroup(this)">
+              <div class="pg-left">🏦 Virtual Account</div><span class="pg-arrow">▼</span>
+            </div>
+            <div class="pay-group-body">
+              <button class="pay-opt" onclick="selectPayOpt(this)">BCA</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">Mandiri</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">BNI</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">BRI</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">Permata</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">CIMB</button>
+            </div>
+          </div>
+          <!-- Convenience Store -->
+          <div>
+            <div class="pay-group-hd" onclick="togglePayGroup(this)">
+              <div class="pg-left">🏪 Convenience Store</div><span class="pg-arrow">▼</span>
+            </div>
+            <div class="pay-group-body">
+              <button class="pay-opt" onclick="selectPayOpt(this)">Alfamart</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">Indomaret</button>
+            </div>
+          </div>
+          <!-- Pulsa -->
+          <div>
+            <div class="pay-group-hd" onclick="togglePayGroup(this)">
+              <div class="pg-left">📶 Pulsa</div><span class="pg-arrow">▼</span>
+            </div>
+            <div class="pay-group-body">
+              <button class="pay-opt" onclick="selectPayOpt(this)">Telkomsel</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">XL / Axis</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">Indosat</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">Tri</button>
+              <button class="pay-opt" onclick="selectPayOpt(this)">Smartfren</button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label>Email (untuk bukti transaksi)</label>
+      <!-- STEP 6 -->
+      <div class="step-block">
+        <div class="step-label"><div class="step-num">6</div><span>Email (untuk bukti transaksi)</span></div>
         <input type="email" id="order-email" placeholder="contoh@email.com"/>
       </div>
-      <button class="btn-order" id="btn-order" onclick="submitOrder()">⚡ Beli Sekarang</button>
+      <button class="btn-order" id="btn-order" onclick="submitOrder()">🛒 Beli Sekarang</button>
     </div>
   </div>
 </div>
@@ -500,8 +708,7 @@ let selectedPayment = "QRIS";
 
 // BANNER
 let currentSlide = 0;
-let totalSlides = 0;
-function slideBanner(dir) { if(!totalSlides) return; currentSlide = (currentSlide + dir + totalSlides) % totalSlides; goSlide(currentSlide); }
+function slideBanner(dir) { currentSlide = (currentSlide + dir + 3) % 3; goSlide(currentSlide); }
 function goSlide(n) {
   currentSlide = n;
   document.getElementById('bannerSlider').style.transform = `translateX(-${n*100}%)`;
@@ -509,56 +716,21 @@ function goSlide(n) {
 }
 setInterval(() => slideBanner(1), 4500);
 
-async function loadBanners() {
-  const slider = document.getElementById('bannerSlider');
-  const dotsEl = document.getElementById('bannerDots');
-  const fallbackBanners = [
-    { badge:'⚡ Top-Up Terpercaya', title:'Power Up<br>Your Game!', desc:'Top-up diamond, UC, dan item favoritmu. Proses instan!', cta:'Top-Up Sekarang', ctaAction:"openOrderModal()", emoji:'🎮', cls:'slide-1' },
-    { badge:'🔥 Flash Sale Aktif', title:'Harga<br>Termurah!', desc:'Diamond dan UC harga spesial. Penawaran terbatas!', cta:'Lihat Flash Sale', ctaAction:"document.getElementById('flashsale').scrollIntoView({behavior:'smooth'})", emoji:'💎', cls:'slide-2' },
-    { badge:'🛡️ 100% Aman', title:'Transaksi<br>Terjamin!', desc:'QRIS, GoPay, OVO, Dana, Transfer Bank. Aman!', cta:'Order Sekarang', ctaAction:"openOrderModal()", emoji:'🔒', cls:'slide-3' },
-  ];
-  try {
-    const res = await fetch(`${API}/banners`);
-    const banners = await res.json();
-    const active = Array.isArray(banners) ? banners.filter(b => b.is_active == 1 || b.is_active === true) : [];
-    if (active.length > 0) {
-      slider.innerHTML = active.map(b => {
-        const imgUrl = b.image && b.image.startsWith('http') ? b.image : `${API}/uploads/${b.image}`;
-        return `<div class="banner-slide" style="background:linear-gradient(135deg,#1565c0,#6a1b9a);padding:0;overflow:hidden;">
-          <img src="${imgUrl}" alt="banner" style="width:100%;height:100%;object-fit:cover;display:block;"
-            onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#1565c0,#6a1b9a)'">
-        </div>`;
-      }).join('');
-      dotsEl.innerHTML = active.map((_,i) => `<div class="banner-dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
-      totalSlides = active.length;
-      return;
-    }
-  } catch(e) { /* fallback ke banner statis */ }
-  // Fallback: banner statis
-  slider.innerHTML = fallbackBanners.map(b => `<div class="banner-slide ${b.cls}">
-    <div class="slide-content">
-      <div class="slide-badge">${b.badge}</div>
-      <h2>${b.title}</h2>
-      <p>${b.desc}</p>
-      <button class="slide-cta" onclick="${b.ctaAction}">${b.cta}</button>
-    </div>
-    <div class="slide-emoji">${b.emoji}</div>
-  </div>`).join('');
-  dotsEl.innerHTML = fallbackBanners.map((_,i) => `<div class="banner-dot${i===0?' active':''}" onclick="goSlide(${i})"></div>`).join('');
-  totalSlides = fallbackBanners.length;
-}
-
 // COUNTDOWN
 (function() {
   const KEY = 'lifjarz_flash_end';
+  const TOTAL = 8*3600;
   let end = parseInt(localStorage.getItem(KEY) || 0);
-  if (!end || end < Date.now()) { end = Date.now() + 8*3600*1000; localStorage.setItem(KEY, end); }
+  if (!end || end < Date.now()) { end = Date.now() + TOTAL*1000; localStorage.setItem(KEY, end); }
   function tick() {
     let rem = Math.max(0, Math.floor((end - Date.now()) / 1000));
-    if (rem === 0) { end = Date.now() + 8*3600*1000; localStorage.setItem(KEY, end); rem = 8*3600; }
+    if (rem === 0) { end = Date.now() + TOTAL*1000; localStorage.setItem(KEY, end); rem = TOTAL; }
     document.getElementById('cd-h').textContent = String(Math.floor(rem/3600)).padStart(2,'0');
     document.getElementById('cd-m').textContent = String(Math.floor((rem%3600)/60)).padStart(2,'0');
     document.getElementById('cd-s').textContent = String(rem%60).padStart(2,'0');
+    const pct = (rem / TOTAL) * 100;
+    const bar = document.getElementById('flash-progress-bar');
+    if (bar) bar.style.width = pct + '%';
   }
   tick(); setInterval(tick, 1000);
 })();
@@ -573,14 +745,13 @@ function getGameGradient(g) {
 }
 function getGameImage(gameName) {
   const meta = (window._metaProds||[]).find(p=>p.game_name===gameName&&p.image);
-  if (meta) return meta.image && meta.image.startsWith('http') ? meta.image : `${API}/uploads/${meta.image}`;
+  if (meta) return `${API}/uploads/${meta.image}`;
   const from = allProducts.find(p=>p.game_name===gameName&&p.image);
-  if (from) return from.image && from.image.startsWith('http') ? from.image : `${API}/uploads/${from.image}`;
+  if (from) return `${API}/uploads/${from.image}`;
   return null;
 }
 
 async function loadGames() {
-  loadBanners();
   try {
     const [prodRes, fsRes] = await Promise.all([fetch(`${API}/products`), fetch(`${API}/flashsales`)]);
     const products = await prodRes.json();
@@ -652,7 +823,17 @@ function selectGameFromCard(game) {
   openOrderModal();
 }
 function openOrderModal() { document.getElementById('orderOverlay').classList.add('show'); document.body.style.overflow='hidden'; }
-function closeOrderModal() { document.getElementById('orderOverlay').classList.remove('show'); document.body.style.overflow=''; }
+function closeOrderModal() {
+  const overlay = document.getElementById('orderOverlay');
+  const modal = overlay.querySelector('.order-modal');
+  overlay.classList.add('closing');
+  modal.classList.add('closing');
+  setTimeout(() => {
+    overlay.classList.remove('show','closing');
+    modal.classList.remove('closing');
+    document.body.style.overflow='';
+  }, 240);
+}
 function closeOrderIfOutside(e) { if (e.target===document.getElementById('orderOverlay')) closeOrderModal(); }
 function loadNominals() {
   const game = document.getElementById('order-game').value;
@@ -671,6 +852,17 @@ function selectNominal(el,id,price) {
   document.querySelectorAll('.nominal-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active'); selectedProductId=id; selectedPrice=price; updateOrderButton();
 }
+function togglePayGroup(hd) {
+  const body = hd.nextElementSibling;
+  const isOpen = hd.classList.contains('open');
+  hd.classList.toggle('open', !isOpen);
+  body.classList.toggle('show', !isOpen);
+}
+function selectPayOpt(el) {
+  document.querySelectorAll('.pay-opt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  selectedPayment = el.textContent.trim();
+}
 function selectPay(el) {
   document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
@@ -681,8 +873,8 @@ function updateOrderButton() {
   if (!btn) return;
   if (selectedProductId) {
     const final = Math.round(selectedPrice - selectedPrice*promoDiscount/100);
-    btn.textContent = `⚡ Beli Sekarang — Rp ${final.toLocaleString('id-ID')}`;
-  } else { btn.textContent = '⚡ Beli Sekarang'; }
+    btn.textContent = `🛒 Beli Sekarang — Rp ${final.toLocaleString('id-ID')}`;
+  } else { btn.textContent = '🛒 Beli Sekarang'; }
 }
 async function checkPromo() {
   const code = document.getElementById('promo-input').value.trim().toUpperCase();
@@ -832,5 +1024,136 @@ function setTheme(mode) {
 loadGames();
 </script>
 
+<a id="waFloat" href="https://wa.me/6289685391751" target="_blank" title="Hubungi CS">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="white"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+</a>
 <button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Kembali ke atas">
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="17 11 12 6 7 11"/>
+    <polyline points="17 18 12 13 7 18"/>
+  </svg>
+</button>
+<script>
+// Rotating chip icons
+(function(){
+  var chips = ['chip0','chip1','chip2','chip3'];
+  var indices = [0,0,0,0];
+  var offsets = [0, 0, 0, 0];
+  chips.forEach(function(id, ci){
+    setTimeout(function(){
+      setInterval(function(){
+        var el = document.getElementById(id);
+        if(!el) return;
+        var svgs = el.querySelectorAll('.ci-svg');
+        var cur = indices[ci];
+        var next = (cur + 1) % svgs.length;
+        svgs[cur].classList.remove('ci-show');
+        svgs[cur].classList.add('ci-out');
+        setTimeout(function(){ svgs[cur].classList.remove('ci-out'); }, 230);
+        setTimeout(function(){ svgs[next].classList.add('ci-show'); }, 180);
+        indices[ci] = next;
+      }, 1800);
+    }, offsets[ci]);
+  });
+})();
+window.addEventListener('scroll', function(){
+  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 300);
+});
+</script>
+
+<!-- MODAL SK -->
+<div class="order-overlay" id="skOverlay" onclick="if(event.target===this)closeLegalModal('sk')">
+  <div class="order-modal" style="max-width:580px;">
+    <div class="modal-hd">
+      <h3>📋 Syarat &amp; Ketentuan</h3>
+      <p>Berlaku untuk seluruh pengguna layanan LIFJARZSTORE.ID</p>
+      <button class="modal-close" onclick="closeLegalModal('sk')">✕</button>
+    </div>
+    <div class="modal-bd legal-body" style="font-size:0.83rem;line-height:1.75;">
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">1. Penerimaan Syarat</strong>
+        Dengan mengakses layanan LIFJARZSTORE.ID, Anda menyetujui seluruh syarat dan ketentuan yang berlaku. Jika tidak setuju, harap hentikan penggunaan layanan kami.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">2. Layanan yang Disediakan</strong>
+        LIFJARZSTORE.ID menyediakan layanan top-up diamond, koin, dan voucher berbagai platform game online sebagai reseller resmi yang bekerja sama dengan penyedia game terpercaya.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">3. Tanggung Jawab Pengguna</strong>
+        Pengguna wajib memastikan kebenaran data seperti User ID dan Zone ID sebelum pembayaran. LIFJARZSTORE.ID tidak bertanggung jawab atas kerugian akibat kesalahan input data.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">4. Proses &amp; Waktu Pengiriman</strong>
+        Top-up diproses otomatis setelah pembayaran dikonfirmasi. Normalnya item masuk 1–15 menit. Saat gangguan server atau maintenance dapat memakan waktu hingga 1×24 jam.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">5. Pembatalan &amp; Pengembalian Dana</strong>
+        Transaksi yang telah diproses tidak dapat dibatalkan. Refund hanya berlaku jika item tidak masuk dalam 1×24 jam setelah pembayaran terkonfirmasi, dibuktikan dengan tangkapan layar valid. Proses refund 1–3 hari kerja.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">6. Larangan Penggunaan</strong>
+        Pengguna dilarang menggunakan layanan ini untuk penipuan atau aktivitas ilegal. LIFJARZSTORE.ID berhak menangguhkan akun yang melanggar tanpa pemberitahuan.
+      </div>
+      <div>
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">7. Perubahan Ketentuan</strong>
+        LIFJARZSTORE.ID berhak mengubah syarat ini sewaktu-waktu. Penggunaan layanan secara berkelanjutan dianggap sebagai persetujuan atas perubahan tersebut.
+      </div>
+      <p style="color:#aaa;font-size:0.7rem;margin-top:18px;text-align:center;">Terakhir diperbarui: Januari 2025 · LIFJARZSTORE.ID</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL KEBIJAKAN PRIVASI -->
+<div class="order-overlay" id="ppOverlay" onclick="if(event.target===this)closeLegalModal('pp')">
+  <div class="order-modal" style="max-width:580px;">
+    <div class="modal-hd">
+      <h3>🔒 Kebijakan Privasi</h3>
+      <p>Kami serius menjaga keamanan data pribadi Anda</p>
+      <button class="modal-close" onclick="closeLegalModal('pp')">✕</button>
+    </div>
+    <div class="modal-bd legal-body" style="font-size:0.83rem;line-height:1.75;">
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">1. Data yang Kami Kumpulkan</strong>
+        Saat bertransaksi, kami mengumpulkan User ID game, Zone ID, alamat email, dan metode pembayaran. Kami tidak mengumpulkan kata sandi atau informasi kartu kredit.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">2. Tujuan Penggunaan Data</strong>
+        Data digunakan untuk memproses transaksi, mengirim bukti pembayaran via email, meningkatkan kualitas layanan, serta mendeteksi dan mencegah aktivitas penipuan.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">3. Keamanan Data</strong>
+        Kami menerapkan enkripsi SSL dan standar keamanan industri. Akses data dibatasi hanya untuk personel yang memerlukan dalam rangka pelayanan transaksi.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">4. Berbagi Data dengan Pihak Ketiga</strong>
+        Kami tidak menjual atau membagikan data Anda untuk tujuan komersial. Data hanya dibagikan ke penyedia layanan game untuk keperluan pemrosesan top-up.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">5. Penyimpanan Data</strong>
+        Data transaksi disimpan 12 bulan untuk verifikasi dan penyelesaian sengketa, setelah itu dihapus permanen dari sistem kami.
+      </div>
+      <div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #eee;">
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">6. Hak Pengguna</strong>
+        Anda berhak meminta akses, koreksi, atau penghapusan data pribadi Anda kapan saja melalui kontak kami.
+      </div>
+      <div>
+        <strong style="color:#1a8fe3;display:block;margin-bottom:5px;">7. Hubungi Kami</strong>
+        Pertanyaan seputar kebijakan privasi? Hubungi kami:<br>
+        📱 WhatsApp: <strong>0896-7562-2834</strong><br>
+        📧 Email: <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ed9f94948081dcd4dededcd4ad8a808c8481c38e8280">[email&#160;protected]</a></strong>
+      </div>
+      <p style="color:#aaa;font-size:0.7rem;margin-top:18px;text-align:center;">Terakhir diperbarui: Januari 2025 · LIFJARZSTORE.ID</p>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+function openLegalModal(type) {
+  document.getElementById(type + 'Overlay').classList.add('show');
+}
+function closeLegalModal(type) {
+  document.getElementById(type + 'Overlay').classList.remove('show');
+}
+</script>
+</body>
+</html>
